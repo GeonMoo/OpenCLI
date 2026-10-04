@@ -1,4 +1,8 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { CommandExecutionError } from './errors.js';
 import { render } from './output.js';
 
 describe('output TTY detection', () => {
@@ -83,5 +87,89 @@ describe('output TTY detection', () => {
     const out = logSpy.mock.calls.map((c: unknown[]) => c[0]).join('\n');
 
     expect(out).toContain('| a\\|b | 10 |');
+  });
+});
+
+describe('output files', () => {
+  let tempDir: string;
+  let logSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'opencli-output-'));
+    logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    logSpy.mockRestore();
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  });
+
+  it('writes Excel-compatible CSV with one BOM and preserves UTF-8 values and CSV escaping', () => {
+    const outputFile = path.join(tempDir, '房源.csv');
+    render([
+      {
+        title: '上实海上公元🏠',
+        quote: '总价 500万, "诚意出售"',
+        note: '南北通透\n满五唯一',
+      },
+    ], {
+      fmt: 'csv',
+      fmtExplicit: true,
+      columns: ['title', 'quote', 'note'],
+      outputFile,
+    });
+
+    const bytes = fs.readFileSync(outputFile);
+    expect([...bytes.subarray(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
+    const text = bytes.toString('utf8');
+    expect(text.match(/\uFEFF/g)).toHaveLength(1);
+    expect(text).toBe(
+      '\uFEFFtitle,quote,note\n' +
+      '上实海上公元🏠,"总价 500万, ""诚意出售""","南北通透\n满五唯一"\n',
+    );
+    expect(logSpy).not.toHaveBeenCalled();
+  });
+
+  it('leaves stdout behavior unchanged when outputFile is omitted', () => {
+    render([{ name: '中文🏠', quote: '1,000' }], {
+      fmt: 'csv',
+      fmtExplicit: true,
+      columns: ['name', 'quote'],
+    });
+
+    expect(logSpy.mock.calls).toEqual([
+      ['name,quote'],
+      ['中文🏠,"1,000"'],
+    ]);
+  });
+
+  it('writes JSON as UTF-8 without a BOM and keeps stdout empty', () => {
+    const outputFile = path.join(tempDir, 'result.json');
+    render({ name: '嘉定🏠' }, { fmt: 'json', fmtExplicit: true, outputFile });
+
+    const bytes = fs.readFileSync(outputFile);
+    expect([...bytes.subarray(0, 3)]).not.toEqual([0xef, 0xbb, 0xbf]);
+    expect(bytes.toString('utf8')).toBe('{\n  "name": "嘉定🏠"\n}\n');
+    expect(logSpy).not.toHaveBeenCalled();
+  });
+
+  it('supports writing plain output with the default plain shortcut', () => {
+    const outputFile = path.join(tempDir, 'result.txt');
+    render({ text: '上海中文🏠' }, { fmt: 'plain', outputFile });
+
+    expect(fs.readFileSync(outputFile, 'utf8')).toBe('上海中文🏠\n');
+    expect(logSpy).not.toHaveBeenCalled();
+  });
+
+  it('wraps file write failures in CommandExecutionError without creating directories', () => {
+    const outputFile = path.join(tempDir, 'missing', 'result.csv');
+
+    expect(() => render([{ name: '房源' }], {
+      fmt: 'csv',
+      fmtExplicit: true,
+      outputFile,
+    })).toThrow(CommandExecutionError);
+    expect(fs.existsSync(path.dirname(outputFile))).toBe(false);
+    expect(logSpy).not.toHaveBeenCalled();
   });
 });

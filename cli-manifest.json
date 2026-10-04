@@ -21998,6 +21998,84 @@
   },
   {
     "site": "ke",
+    "name": "search",
+    "description": "贝壳二手房搜索，默认仅列表，--detail 补充详情及精确挂牌日期",
+    "access": "read",
+    "example": "opencli ke search \"华润中央公园三期\" --city sh --district jiading -f csv",
+    "domain": "ke.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "query",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "小区名称或房源关键词"
+      },
+      {
+        "name": "city",
+        "type": "str",
+        "default": "bj",
+        "required": false,
+        "help": "城市代码，如 bj、sh、gz、sz"
+      },
+      {
+        "name": "district",
+        "type": "str",
+        "required": false,
+        "help": "区域 URL 拼音；上海 jiading 自动映射为 jiadingqu"
+      },
+      {
+        "name": "detail",
+        "type": "boolean",
+        "default": false,
+        "required": false,
+        "help": "逐套访问详情页补充属性及精确挂牌日期，默认仅抓列表"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "required": false,
+        "help": "最多采集数量，省略则采集全部搜索结果"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 600,
+        "required": false,
+        "help": "整次采集超时秒数，默认 600；大量房源可调高"
+      },
+      {
+        "name": "captcha-timeout",
+        "type": "int",
+        "default": 300,
+        "required": false,
+        "help": "每次验证码等待秒数，默认 300；0 表示立即报错"
+      }
+    ],
+    "columns": [
+      "id",
+      "title",
+      "community",
+      "layout",
+      "area",
+      "floor",
+      "direction",
+      "totalPrice",
+      "unitPrice",
+      "listingDate",
+      "propertyInfo",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "ke/search.js",
+    "sourceFile": "ke/search.js",
+    "navigateBefore": false,
+    "defaultWindowMode": "foreground"
+  },
+  {
+    "site": "ke",
     "name": "whoami",
     "description": "Show the current logged-in ke account",
     "access": "read",

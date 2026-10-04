@@ -188,6 +188,10 @@ function knownCommandOptions(cmd: DashPositionalManifestEntry): Map<string, Opti
     ['--format', 'required'],
     ['--trace', 'required'],
   ]);
+  if (!cmd.args?.some(arg => arg.name === 'output' || arg.name === 'o')) {
+    options.set('-o', 'required');
+    options.set('--output', 'required');
+  }
   if (cmd.browser) {
     options.set('--window', 'required');
     options.set('--site-session', 'required');

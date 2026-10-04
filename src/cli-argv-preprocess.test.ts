@@ -307,6 +307,13 @@ describe('escapeLeadingDashPositional', () => {
       .toEqual(['boss', 'detail', '--format', 'json']);
   });
 
+  it('consumes output filenames before escaping a leading-dash positional', () => {
+    for (const outputFlag of ['-o', '--output']) {
+      expect(escapeLeadingDashPositional(['boss', 'detail', outputFlag, '中文 report.csv', '-abc'], manifest))
+        .toEqual(['boss', 'detail', outputFlag, '中文 report.csv', '--', '-abc']);
+    }
+  });
+
   it('does not touch already-escaped --', () => {
     expect(escapeLeadingDashPositional(['boss', 'detail', '--', '-already-escaped'], manifest))
       .toEqual(['boss', 'detail', '--', '-already-escaped']);

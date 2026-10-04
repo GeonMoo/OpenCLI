@@ -35,6 +35,11 @@ const COMMON_OPTIONS = [
     choices: ['table', 'plain', 'json', 'yaml', 'md', 'csv'],
   },
   {
+    flags: '-o, --output <file>',
+    name: 'output',
+    help: 'Write result directly to a UTF-8 file (CSV includes BOM)',
+  },
+  {
     flags: '--trace <mode>',
     name: 'trace',
     help: 'Trace capture: off, on, retain-on-failure',
@@ -53,6 +58,11 @@ const COMMON_OPTIONS = [
     help: 'display help for command',
   },
 ] as const;
+
+function commonOptionsFor(cmd?: CliCommand): typeof COMMON_OPTIONS[number][] {
+  return COMMON_OPTIONS.filter(option => option.name !== 'output'
+    || !cmd?.args.some(arg => arg.name === 'output' || arg.name === 'o'));
+}
 
 const BROWSER_COMMON_OPTIONS = [
   {
@@ -523,7 +533,7 @@ export function commandHelpData(cmd: CliCommand): Record<string, unknown> {
   return {
     site: cmd.site,
     ...compactCommand(cmd),
-    common_options: COMMON_OPTIONS.map(compactCommonOption),
+    common_options: commonOptionsFor(cmd).map(compactCommonOption),
     ...(cmd.browser ? { browser_common_options: BROWSER_COMMON_OPTIONS.map(compactCommonOption) } : {}),
     output_formats: ['table', 'plain', 'yaml', 'json', 'md', 'csv'],
   };
@@ -543,8 +553,8 @@ function formatArgHelp(arg: Arg): string {
   return parts.join('  ');
 }
 
-export function formatCommonOptionsHelpText(): string {
-  const rows = COMMON_OPTIONS.map(option => {
+export function formatCommonOptionsHelpText(cmd?: CliCommand): string {
+  const rows = commonOptionsFor(cmd).map(option => {
     const details: string[] = [option.help];
     if ('default' in option) details.push(`default: ${option.default}`);
     if ('choices' in option) details.push(`choices: ${option.choices.join(', ')}`);
@@ -606,7 +616,7 @@ export function formatCommandHelpText(cmd: CliCommand): string {
     lines.push('Command options:', ...formatRows(optionRows), '');
   }
 
-  lines.push(formatCommonOptionsHelpText(), '');
+  lines.push(formatCommonOptionsHelpText(cmd), '');
   if (cmd.browser) lines.push(formatBrowserCommonOptionsHelpText(), '');
 
   const meta: string[] = [];

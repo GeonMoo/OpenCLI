@@ -28,6 +28,7 @@ import {
 } from './help.js';
 import {
   CliError,
+  ArgumentError,
   EXIT_CODES,
   toEnvelope,
 } from './errors.js';
@@ -60,6 +61,10 @@ export function registerCommandToProgram(siteCmd: Command, cmd: CliCommand): voi
     .option('-f, --format <fmt>', 'Output format: table, plain, json, yaml, md, csv', 'table')
     .option('--trace <mode>', 'Trace capture: off, on, retain-on-failure', 'off')
     .option('-v, --verbose', 'Debug output', false);
+  const supportsFileOutput = !cmd.args.some(arg => arg.name === 'output' || arg.name === 'o');
+  if (supportsFileOutput) {
+    subCmd.option('-o, --output <file>', 'Write result directly to a UTF-8 file (CSV includes BOM)');
+  }
   if (cmd.browser) {
     subCmd
       .option('--window <mode>', 'Browser window mode: foreground or background')
@@ -84,6 +89,11 @@ export function registerCommandToProgram(siteCmd: Command, cmd: CliCommand): voi
 
     // ── Execute + render ────────────────────────────────────────────────
     try {
+      const outputFile = supportsFileOutput && typeof optionsRecord.output === 'string'
+        ? optionsRecord.output : undefined;
+      if (outputFile !== undefined && !outputFile.trim()) {
+        throw new ArgumentError('Output filename must not be empty');
+      }
       // ── Collect kwargs ────────────────────────────────────────────────
       const rawKwargs: Record<string, unknown> = {};
       for (let i = 0; i < positionalArgs.length; i++) {
@@ -141,7 +151,9 @@ export function registerCommandToProgram(siteCmd: Command, cmd: CliCommand): voi
         elapsed: (Date.now() - startTime) / 1000,
         source: fullName(resolved),
         footerExtra: resolved.footerExtra?.(kwargs),
+        ...(outputFile !== undefined ? { outputFile } : {}),
       });
+      if (outputFile !== undefined) log.info(`Saved result to ${outputFile}`);
     } catch (err) {
       renderError(err, fullName(cmd), optionsRecord.verbose === true, optionsRecord.trace);
       process.exitCode = resolveExitCode(err);

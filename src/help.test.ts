@@ -1,5 +1,24 @@
 import { describe, it, expect } from 'vitest';
-import { classifyAdapter, formatRootAdapterHelpText } from './help.js';
+import { classifyAdapter, commandHelpData, formatCommandHelpText, formatRootAdapterHelpText } from './help.js';
+import type { CliCommand } from './registry.js';
+
+describe('file output help', () => {
+  const command: CliCommand = {
+    site: 'ke', name: 'search', description: 'Search homes', access: 'read', browser: false,
+    args: [], func: async () => [],
+  };
+
+  it('advertises direct file output in text and structured help', () => {
+    expect(formatCommandHelpText(command)).toContain('-o, --output <file>');
+    expect(commandHelpData(command).common_options).toContainEqual(expect.objectContaining({ name: 'output' }));
+  });
+
+  it('keeps adapter-owned output arguments distinct from the common option', () => {
+    const ownOutput = { ...command, args: [{ name: 'output', default: 'md', help: 'Document format' }] };
+    expect(formatCommandHelpText(ownOutput)).not.toContain('-o, --output <file>');
+    expect(commandHelpData(ownOutput).common_options).not.toContainEqual(expect.objectContaining({ name: 'output' }));
+  });
+});
 
 describe('classifyAdapter', () => {
   it('classifies DNS-style domains as site', () => {

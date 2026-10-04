@@ -323,6 +323,178 @@ describe('commanderAdapter default formats', () => {
   });
 });
 
+describe('commanderAdapter output files', () => {
+  const cmd: CliCommand = {
+    site: 'ke',
+    name: 'search', access: 'read',
+    description: 'Search properties',
+    browser: true,
+    args: [
+      { name: 'query', positional: true, required: true, help: 'Property name' },
+    ],
+    columns: ['title', 'price'],
+    func: vi.fn(),
+  };
+
+  beforeEach(() => {
+    mockExecuteCommand.mockReset();
+    mockExecuteCommand.mockResolvedValue([{ title: '上实海上公元', price: '500万' }]);
+    mockRenderOutput.mockReset();
+    delete process.env.OPENCLI_VERBOSE;
+    process.exitCode = undefined;
+  });
+
+  it('passes a short output option with spaces and Chinese characters only to the renderer', async () => {
+    const program = new Command();
+    const siteCmd = program.command('ke');
+    registerCommandToProgram(siteCmd, cmd);
+
+    await program.parseAsync([
+      'node',
+      'opencli',
+      'ke',
+      'search',
+      '上实海上公元',
+      '-f',
+      'csv',
+      '-o',
+      '导出目录/嘉定 房源.csv',
+    ]);
+
+    expect(mockExecuteCommand).toHaveBeenCalledWith(
+      cmd,
+      { query: '上实海上公元' },
+      false,
+      expect.objectContaining({ prepared: true }),
+    );
+    expect(mockRenderOutput).toHaveBeenCalledWith(
+      [{ title: '上实海上公元', price: '500万' }],
+      expect.objectContaining({
+        fmt: 'csv',
+        fmtExplicit: true,
+        outputFile: '导出目录/嘉定 房源.csv',
+      }),
+    );
+  });
+
+  it('passes a long output option with spaces and Chinese characters to the renderer', async () => {
+    const program = new Command();
+    const siteCmd = program.command('ke');
+    registerCommandToProgram(siteCmd, cmd);
+
+    await program.parseAsync([
+      'node',
+      'opencli',
+      'ke',
+      'search',
+      '上实海上公元',
+      '--format',
+      'csv',
+      '--output',
+      'C:/临时目录/房源 数据.csv',
+    ]);
+
+    expect(mockExecuteCommand.mock.calls[0][1]).toEqual({ query: '上实海上公元' });
+    expect(mockRenderOutput.mock.calls[0][1]).toEqual(expect.objectContaining({
+      fmt: 'csv',
+      outputFile: 'C:/临时目录/房源 数据.csv',
+    }));
+  });
+
+  it('omits outputFile from renderer options when no output option is provided', async () => {
+    const program = new Command();
+    const siteCmd = program.command('ke');
+    registerCommandToProgram(siteCmd, cmd);
+
+    await program.parseAsync(['node', 'opencli', 'ke', 'search', '上实海上公元', '-f', 'csv']);
+
+    expect(mockRenderOutput).toHaveBeenCalledOnce();
+    expect(mockRenderOutput.mock.calls[0][1]).not.toHaveProperty('outputFile');
+  });
+
+  it('preserves an adapter output argument and does not treat it as a renderer output file', async () => {
+    const mubuDoc: CliCommand = {
+      site: 'mubu',
+      name: 'doc', access: 'read',
+      description: 'Get one document',
+      browser: true,
+      args: [
+        { name: 'doc-id', positional: true, required: true, help: 'Document ID' },
+        { name: 'output', default: 'md', help: 'Output format' },
+      ],
+      columns: ['content'],
+      func: vi.fn(),
+    };
+    const program = new Command();
+    const siteCmd = program.command('mubu');
+    registerCommandToProgram(siteCmd, mubuDoc);
+
+    await program.parseAsync(['node', 'opencli', 'mubu', 'doc', 'doc-123', '--output', 'text']);
+
+    expect(mockExecuteCommand.mock.calls[0][1]).toMatchObject({
+      'doc-id': 'doc-123',
+      output: 'text',
+    });
+    expect(mockRenderOutput.mock.calls[0][1]).not.toHaveProperty('outputFile');
+  });
+
+  it('requires a filename for the output option', async () => {
+    const program = new Command();
+    program.exitOverride();
+    const siteCmd = program.command('ke');
+    registerCommandToProgram(siteCmd, cmd);
+
+    await expect(
+      program.parseAsync(['node', 'opencli', 'ke', 'search', '上实海上公元', '--output']),
+    ).rejects.toMatchObject({ code: 'commander.optionMissingArgument' });
+    expect(mockExecuteCommand).not.toHaveBeenCalled();
+    expect(mockRenderOutput).not.toHaveBeenCalled();
+  });
+
+  it('rejects a blank output filename before command execution', async () => {
+    const program = new Command();
+    const siteCmd = program.command('ke');
+    registerCommandToProgram(siteCmd, cmd);
+    const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await program.parseAsync([
+      'node',
+      'opencli',
+      'ke',
+      'search',
+      '上实海上公元',
+      '--output',
+      '   ',
+    ]);
+
+    expect(mockExecuteCommand).not.toHaveBeenCalled();
+    expect(mockRenderOutput).not.toHaveBeenCalled();
+    expect(stderrSpy.mock.calls.map(call => String(call[0])).join('')).toContain('Output filename must not be empty');
+    stderrSpy.mockRestore();
+  });
+
+  it('does not render or write an output file when command execution fails', async () => {
+    const program = new Command();
+    const siteCmd = program.command('ke');
+    registerCommandToProgram(siteCmd, cmd);
+    const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    mockExecuteCommand.mockRejectedValueOnce(new Error('search failed'));
+
+    await program.parseAsync([
+      'node',
+      'opencli',
+      'ke',
+      'search',
+      '上实海上公元',
+      '-o',
+      '不会生成.csv',
+    ]);
+
+    expect(mockRenderOutput).not.toHaveBeenCalled();
+    stderrSpy.mockRestore();
+  });
+});
+
 describe('commanderAdapter error envelope output', () => {
   const cmd: CliCommand = {
     site: 'xiaohongshu',
