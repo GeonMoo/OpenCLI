@@ -21478,6 +21478,222 @@
     "sourceFile": "juejin/recommend.js"
   },
   {
+    "site": "jumpserver",
+    "name": "connect",
+    "description": "Connect to a permitted JumpServer SSH asset and keep the terminal in the persistent browser session",
+    "access": "write",
+    "example": "opencli jumpserver connect my-linux-host",
+    "domain": "jumpserver.local",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "asset",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "Exact JumpServer asset name, id, address, or hostname"
+      },
+      {
+        "name": "account",
+        "type": "string",
+        "default": "",
+        "required": false,
+        "help": "Account alias/username/id when the asset has multiple permitted accounts"
+      }
+    ],
+    "columns": [
+      "assetId",
+      "assetName",
+      "assetAddress",
+      "accountAlias",
+      "protocol",
+      "terminalId",
+      "status"
+    ],
+    "type": "js",
+    "modulePath": "jumpserver/connect.js",
+    "sourceFile": "jumpserver/connect.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
+    "site": "jumpserver",
+    "name": "download",
+    "description": "Download one remote file through JumpServer Web SFTP from the connected asset",
+    "access": "read",
+    "example": "opencli jumpserver download /tmp/1.txt .",
+    "domain": "jumpserver.local",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "remote-file",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "Absolute remote file path on the SSH asset"
+      },
+      {
+        "name": "local-dir",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "Local output directory"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 120,
+        "required": false,
+        "help": "Seconds to wait for download completion (max 600)"
+      }
+    ],
+    "columns": [
+      "remotePath",
+      "fileName",
+      "size",
+      "mimeType",
+      "status",
+      "localPath"
+    ],
+    "type": "js",
+    "modulePath": "jumpserver/download.js",
+    "sourceFile": "jumpserver/download.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
+    "site": "jumpserver",
+    "name": "exec",
+    "description": "Run a command in the active JumpServer terminal session",
+    "access": "write",
+    "example": "opencli jumpserver exec \"python --version\" --wait 10 --json",
+    "domain": "jumpserver.local",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "command",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "Shell command to run in the connected asset"
+      },
+      {
+        "name": "wait",
+        "type": "int",
+        "default": 30,
+        "required": false,
+        "help": "Seconds to wait for the completion marker (max 600)"
+      },
+      {
+        "name": "json",
+        "type": "bool",
+        "default": false,
+        "required": false,
+        "help": "Compatibility alias; JSON is the default output for this command"
+      }
+    ],
+    "columns": [
+      "command",
+      "exitCode",
+      "output",
+      "assetId",
+      "assetName",
+      "assetAddress",
+      "accountAlias",
+      "terminalId"
+    ],
+    "defaultFormat": "json",
+    "type": "js",
+    "modulePath": "jumpserver/exec.js",
+    "sourceFile": "jumpserver/exec.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
+    "site": "jumpserver",
+    "name": "upload",
+    "description": "Upload one local file through JumpServer Web SFTP to the connected asset",
+    "access": "write",
+    "example": "opencli jumpserver upload 1.txt /tmp",
+    "domain": "jumpserver.local",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "file",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "Local file path"
+      },
+      {
+        "name": "remote-dir",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "Absolute remote directory on the SSH asset"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 120,
+        "required": false,
+        "help": "Seconds to wait for upload completion (max 600)"
+      }
+    ],
+    "columns": [
+      "remotePath",
+      "fileName",
+      "size",
+      "status"
+    ],
+    "type": "js",
+    "modulePath": "jumpserver/upload.js",
+    "sourceFile": "jumpserver/upload.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
+    "site": "jumpserver",
+    "name": "view",
+    "description": "Show the tail of the active JumpServer terminal transcript without sending input",
+    "access": "read",
+    "example": "opencli jumpserver view --tail 10",
+    "domain": "jumpserver.local",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "tail",
+        "type": "int",
+        "default": 50,
+        "required": false,
+        "help": "Transcript lines to return (max 1000)"
+      }
+    ],
+    "columns": [
+      "assetId",
+      "assetName",
+      "accountAlias",
+      "terminalId",
+      "lines",
+      "output"
+    ],
+    "type": "js",
+    "modulePath": "jumpserver/view.js",
+    "sourceFile": "jumpserver/view.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
     "site": "ke",
     "name": "chengjiao",
     "description": "贝壳找房成交记录",
