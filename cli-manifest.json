@@ -21694,6 +21694,172 @@
     "defaultWindowMode": "background"
   },
   {
+    "site": "jupyter",
+    "name": "console",
+    "description": "在已登录的 JupyterLab Terminal 中执行 shell 命令并返回结果",
+    "access": "write",
+    "example": "opencli jupyter console \"python --version\" --timeout 10 -f json",
+    "domain": "139.196.153.143:9091",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "command",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "要在 Terminal 中执行的 shell 命令"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 30,
+        "required": false,
+        "help": "等待执行完成的秒数 (max 300)"
+      }
+    ],
+    "columns": [
+      "command",
+      "exitCode",
+      "output",
+      "terminalName"
+    ],
+    "type": "js",
+    "modulePath": "jupyter/console.js",
+    "sourceFile": "jupyter/console.js",
+    "navigateBefore": "http://139.196.153.143:9091/lab",
+    "defaultWindowMode": "foreground"
+  },
+  {
+    "site": "jupyter",
+    "name": "download",
+    "description": "使用已登录的 JupyterLab 会话把远程文件下载到本地目录",
+    "access": "read",
+    "example": "opencli jupyter download data/report.csv --output ./jupyter-downloads --timeout 60 -f json",
+    "domain": "139.196.153.143:9091",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "path",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "Jupyter 工作目录中的相对文件路径"
+      },
+      {
+        "name": "output",
+        "type": "string",
+        "default": "./jupyter-downloads",
+        "required": false,
+        "help": "本地输出目录"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 60,
+        "required": false,
+        "help": "等待下载完成的秒数 (max 600)"
+      }
+    ],
+    "columns": [
+      "remotePath",
+      "fileName",
+      "size",
+      "mimeType",
+      "status",
+      "localPath",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "jupyter/download.js",
+    "sourceFile": "jupyter/download.js",
+    "navigateBefore": "http://139.196.153.143:9091/lab",
+    "defaultWindowMode": "foreground"
+  },
+  {
+    "site": "jupyter",
+    "name": "pyconsole",
+    "description": "在已登录的 JupyterLab Python Console 中执行 Python 代码并返回文本结果",
+    "access": "write",
+    "example": "opencli jupyter pyconsole \"print(6 * 7)\" --timeout 30 -f json",
+    "domain": "139.196.153.143:9091",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "code",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "要在 Python Console 中执行的 Python 代码"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 30,
+        "required": false,
+        "help": "等待执行完成的秒数 (max 300)"
+      }
+    ],
+    "columns": [
+      "executionCount",
+      "code",
+      "output",
+      "outputType"
+    ],
+    "type": "js",
+    "modulePath": "jupyter/pyconsole.js",
+    "sourceFile": "jupyter/pyconsole.js",
+    "navigateBefore": "http://139.196.153.143:9091/lab",
+    "defaultWindowMode": "foreground"
+  },
+  {
+    "site": "jupyter",
+    "name": "upload",
+    "description": "把本地文件上传到已登录的 JupyterLab 工作目录",
+    "access": "write",
+    "example": "opencli jupyter upload ./report.csv --path data/report.csv -f json",
+    "domain": "139.196.153.143:9091",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "file",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "本地文件路径"
+      },
+      {
+        "name": "path",
+        "type": "string",
+        "default": "",
+        "required": false,
+        "help": "Jupyter 相对目标路径；省略时使用本地文件名"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 120,
+        "required": false,
+        "help": "等待上传完成的秒数 (max 600)"
+      }
+    ],
+    "columns": [
+      "remotePath",
+      "fileName",
+      "size",
+      "type",
+      "status"
+    ],
+    "type": "js",
+    "modulePath": "jupyter/upload.js",
+    "sourceFile": "jupyter/upload.js",
+    "navigateBefore": "http://139.196.153.143:9091/lab",
+    "defaultWindowMode": "foreground"
+  },
+  {
     "site": "ke",
     "name": "chengjiao",
     "description": "贝壳找房成交记录",
