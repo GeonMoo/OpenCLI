@@ -23987,6 +23987,63 @@
     "sourceFile": "lichess/user.js"
   },
   {
+    "site": "liepin",
+    "name": "search",
+    "description": "猎聘搜索职位（不带关键词时返回为你推荐职位）",
+    "access": "read",
+    "domain": "www.liepin.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "query",
+        "type": "str",
+        "required": false,
+        "positional": true,
+        "help": "Search keyword (optional, empty = recommended jobs)"
+      },
+      {
+        "name": "city",
+        "type": "str",
+        "default": "全国",
+        "required": false,
+        "help": "City name or code for keyword search (e.g. 上海, 020)"
+      },
+      {
+        "name": "page",
+        "type": "int",
+        "default": 1,
+        "required": false,
+        "help": "Starting page number (default: 1)"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 40,
+        "required": false,
+        "help": "Number of results; automatically loads more pages beyond 40"
+      }
+    ],
+    "columns": [
+      "name",
+      "salary",
+      "company",
+      "area",
+      "experience",
+      "degree",
+      "recruiter",
+      "recruiterActive",
+      "jobId",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "liepin/search.js",
+    "sourceFile": "liepin/search.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
     "site": "linkedin",
     "name": "company",
     "description": "Read a LinkedIn company page: industry, size, HQ, founded, website, followers, about",
