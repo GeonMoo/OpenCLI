@@ -21226,6 +21226,27 @@
     "navigateBefore": "https://jimeng.jianying.com"
   },
   {
+    "site": "jinshi",
+    "name": "news",
+    "description": "金十最新快讯，默认获取首页已加载的全部新闻",
+    "access": "read",
+    "example": "opencli jinshi news -f csv -o \"test.csv\"",
+    "domain": "www.jin10.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [],
+    "columns": [
+      "timestamp",
+      "title",
+      "content",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "jinshi/news.js",
+    "sourceFile": "jinshi/news.js",
+    "navigateBefore": true
+  },
+  {
     "site": "jira",
     "name": "attachments",
     "description": "Jira issue attachment metadata",
