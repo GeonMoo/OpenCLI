@@ -21397,6 +21397,274 @@
     "sourceFile": "jira/search.js"
   },
   {
+    "site": "jisilu",
+    "name": "adjust",
+    "description": "可转债下修条款及计数",
+    "access": "read",
+    "domain": "www.jisilu.cn",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 0,
+        "required": false,
+        "help": "返回数量，0 表示全部；按页面默认顺序"
+      }
+    ],
+    "columns": [
+      "rank",
+      "bondCode",
+      "bondName",
+      "bondPrice",
+      "stockCode",
+      "stockName",
+      "convPrice",
+      "adjustTriggerPct",
+      "adjustTriggerPrice",
+      "adjustCount",
+      "recalculateDate",
+      "adjustClause"
+    ],
+    "type": "js",
+    "modulePath": "jisilu/list.js",
+    "sourceFile": "jisilu/list.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "jisilu",
+    "name": "delisted",
+    "description": "已退市可转债及退市原因",
+    "access": "read",
+    "domain": "www.jisilu.cn",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 0,
+        "required": false,
+        "help": "返回数量，0 表示全部；按页面默认顺序"
+      }
+    ],
+    "columns": [
+      "rank",
+      "bondCode",
+      "bondName",
+      "bondPrice",
+      "stockCode",
+      "stockName",
+      "remainingAmountCny100M",
+      "maxPrice",
+      "minPrice",
+      "issueDate",
+      "delistDate",
+      "delistReason"
+    ],
+    "type": "js",
+    "modulePath": "jisilu/list.js",
+    "sourceFile": "jisilu/list.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "jisilu",
+    "name": "list",
+    "description": "可转债行情列表",
+    "access": "read",
+    "domain": "www.jisilu.cn",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 0,
+        "required": false,
+        "help": "返回数量，0 表示全部；按页面默认顺序"
+      }
+    ],
+    "columns": [
+      "rank",
+      "bondCode",
+      "bondName",
+      "bondPrice",
+      "stockCode",
+      "stockName",
+      "bondChangePct",
+      "convPrice",
+      "convValue",
+      "convPremiumPct",
+      "ytm",
+      "remainingYears"
+    ],
+    "type": "js",
+    "modulePath": "jisilu/list.js",
+    "sourceFile": "jisilu/list.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "jisilu",
+    "name": "login",
+    "description": "Open jisilu login and wait until the browser session is authenticated",
+    "access": "write",
+    "domain": "www.jisilu.cn",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 300,
+        "required": false,
+        "help": "Maximum seconds to wait for the user to finish login"
+      }
+    ],
+    "columns": [
+      "status",
+      "logged_in",
+      "site",
+      "username",
+      "profileUrl"
+    ],
+    "type": "js",
+    "modulePath": "jisilu/auth.js",
+    "sourceFile": "jisilu/auth.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "foreground"
+  },
+  {
+    "site": "jisilu",
+    "name": "pre",
+    "description": "待发可转债及发行进度",
+    "access": "read",
+    "domain": "www.jisilu.cn",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 0,
+        "required": false,
+        "help": "返回数量，0 表示全部；按页面默认顺序"
+      }
+    ],
+    "columns": [
+      "rank",
+      "stockCode",
+      "stockName",
+      "bondCode",
+      "bondName",
+      "stockPrice",
+      "issueAmountCny100M",
+      "convPrice",
+      "applyCode",
+      "applyDate",
+      "progress",
+      "progressHistory"
+    ],
+    "type": "js",
+    "modulePath": "jisilu/list.js",
+    "sourceFile": "jisilu/list.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "jisilu",
+    "name": "put",
+    "description": "可转债回售条款及状态",
+    "access": "read",
+    "domain": "www.jisilu.cn",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 0,
+        "required": false,
+        "help": "返回数量，0 表示全部；按页面默认顺序"
+      }
+    ],
+    "columns": [
+      "rank",
+      "bondCode",
+      "bondName",
+      "bondPrice",
+      "stockCode",
+      "stockName",
+      "convPrice",
+      "putTriggerPct",
+      "putTriggerPrice",
+      "putPrice",
+      "putStatus",
+      "putClause"
+    ],
+    "type": "js",
+    "modulePath": "jisilu/list.js",
+    "sourceFile": "jisilu/list.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "jisilu",
+    "name": "redeem",
+    "description": "可转债强赎条款及状态",
+    "access": "read",
+    "domain": "www.jisilu.cn",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 0,
+        "required": false,
+        "help": "返回数量，0 表示全部；按页面默认顺序"
+      }
+    ],
+    "columns": [
+      "rank",
+      "bondCode",
+      "bondName",
+      "bondPrice",
+      "stockCode",
+      "stockName",
+      "convPrice",
+      "redeemTriggerPct",
+      "redeemTriggerPrice",
+      "redeemPrice",
+      "redeemStatus",
+      "redeemClause"
+    ],
+    "type": "js",
+    "modulePath": "jisilu/list.js",
+    "sourceFile": "jisilu/list.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "jisilu",
+    "name": "whoami",
+    "description": "Show the current logged-in jisilu account",
+    "access": "read",
+    "domain": "www.jisilu.cn",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [],
+    "columns": [
+      "logged_in",
+      "site",
+      "username",
+      "profileUrl"
+    ],
+    "type": "js",
+    "modulePath": "jisilu/auth.js",
+    "sourceFile": "jisilu/auth.js",
+    "navigateBefore": false,
+    "siteSession": "persistent"
+  },
+  {
     "site": "juejin",
     "name": "hot",
     "description": "Juejin (掘金) hot article ranking, optionally scoped to a category",
