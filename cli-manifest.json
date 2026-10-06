@@ -21686,6 +21686,105 @@
     "siteSession": "persistent"
   },
   {
+    "site": "jobs",
+    "name": "companies",
+    "description": "List the 18 supported employers and official recruitment sites",
+    "access": "read",
+    "domain": "xiaomi.jobs.f.mioffice.cn",
+    "strategy": "public",
+    "browser": false,
+    "args": [],
+    "columns": [
+      "company",
+      "name",
+      "source",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "jobs/companies-list.js",
+    "sourceFile": "jobs/companies-list.js"
+  },
+  {
+    "site": "jobs",
+    "name": "search",
+    "description": "Search official recruitment sites of 18 employers; default matches job titles",
+    "access": "read",
+    "domain": "xiaomi.jobs.f.mioffice.cn",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "query",
+        "type": "string",
+        "required": true,
+        "positional": true,
+        "help": "Job keyword, e.g. 数据开发"
+      },
+      {
+        "name": "pages",
+        "type": "int",
+        "default": 1,
+        "required": false,
+        "help": "Maximum listing pages per company (positive integer)"
+      },
+      {
+        "name": "company",
+        "type": "string",
+        "required": false,
+        "help": "Company ID or comma-separated IDs; omitted searches all 18 (see jobs companies)"
+      },
+      {
+        "name": "match",
+        "type": "string",
+        "default": "title",
+        "required": false,
+        "help": "title (default) or text (title, description and requirements)"
+      },
+      {
+        "name": "details",
+        "type": "bool",
+        "default": false,
+        "required": false,
+        "help": "Also fetch job details for full descriptions and requirements"
+      },
+      {
+        "name": "strict",
+        "type": "bool",
+        "default": false,
+        "required": false,
+        "help": "Fail if any company fails; default keeps partial results with stderr warnings"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 600,
+        "required": false,
+        "help": "Overall command timeout in seconds (1-3600)"
+      },
+      {
+        "name": "request-timeout",
+        "type": "int",
+        "default": 30,
+        "required": false,
+        "help": "Timeout per request/page in seconds (1-120)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "company",
+      "id",
+      "title",
+      "location",
+      "description",
+      "requirements",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "jobs/search.js",
+    "sourceFile": "jobs/search.js",
+    "navigateBefore": true
+  },
+  {
     "site": "juejin",
     "name": "hot",
     "description": "Juejin (掘金) hot article ranking, optionally scoped to a category",
