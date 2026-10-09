@@ -38703,6 +38703,159 @@
     "sourceFile": "ths/hot-rank.js"
   },
   {
+    "site": "tianyancha",
+    "name": "detail",
+    "description": "查询公司工商明细；支持公司 ID、详情 URL 或名称（简称取首个匹配）",
+    "access": "read",
+    "example": "opencli tianyancha detail 2343820668",
+    "domain": "tianyancha.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "company",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "公司 ID、天眼查详情 URL 或名称"
+      }
+    ],
+    "columns": [
+      "id",
+      "name",
+      "legalPerson",
+      "status",
+      "creditCode",
+      "registeredCapital",
+      "establishmentDate",
+      "industry",
+      "address",
+      "businessScope",
+      "extras",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "tianyancha/detail.js",
+    "sourceFile": "tianyancha/detail.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "tianyancha",
+    "name": "login",
+    "description": "Open tianyancha login and wait until the browser session is authenticated",
+    "access": "write",
+    "domain": "tianyancha.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 300,
+        "required": false,
+        "help": "Maximum seconds to wait for the user to finish login"
+      }
+    ],
+    "columns": [
+      "status",
+      "logged_in",
+      "site",
+      "id",
+      "name",
+      "isVip"
+    ],
+    "type": "js",
+    "modulePath": "tianyancha/auth.js",
+    "sourceFile": "tianyancha/auth.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "foreground"
+  },
+  {
+    "site": "tianyancha",
+    "name": "search",
+    "description": "查公司、查老板或查直接关联主体；--target 查询两主体关联路径",
+    "access": "read",
+    "example": "opencli tianyancha search \"宁德时代\" --class company",
+    "domain": "tianyancha.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "query",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "公司或老板名称"
+      },
+      {
+        "name": "class",
+        "type": "str",
+        "default": "company",
+        "required": false,
+        "help": "company 查公司；boss 查老板；relation 查关系",
+        "choices": [
+          "company",
+          "boss",
+          "relation"
+        ]
+      },
+      {
+        "name": "target",
+        "type": "str",
+        "required": false,
+        "help": "relation 的第二主体名称；省略则返回公司的直接关联主体"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "返回条数，1–100；列表不自动翻页"
+      }
+    ],
+    "columns": [
+      "rank",
+      "id",
+      "name",
+      "type",
+      "sourceId",
+      "sourceName",
+      "legalPerson",
+      "status",
+      "relation",
+      "holdingPct",
+      "extras",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "tianyancha/search.js",
+    "sourceFile": "tianyancha/search.js",
+    "navigateBefore": false
+  },
+  {
+    "site": "tianyancha",
+    "name": "whoami",
+    "description": "Show the current logged-in tianyancha account",
+    "access": "read",
+    "domain": "tianyancha.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [],
+    "columns": [
+      "logged_in",
+      "site",
+      "id",
+      "name",
+      "isVip"
+    ],
+    "type": "js",
+    "modulePath": "tianyancha/auth.js",
+    "sourceFile": "tianyancha/auth.js",
+    "navigateBefore": false,
+    "siteSession": "persistent"
+  },
+  {
     "site": "tieba",
     "name": "hot",
     "description": "Tieba hot topics",

@@ -1,0 +1,105 @@
+{
+  "company": {
+    "state": "ok",
+    "data": {
+      "companyList": [
+        {
+          "id": 2343820668,
+          "name": "<em>宁德时代</em>新能源科技股份有限公司",
+          "legalPersonName": "曾毓群",
+          "regStatus": "存续",
+          "regCapital": "456360.8365万人民币",
+          "estiblishTime": "2011-12-16 00:00:00.0"
+        }
+      ]
+    }
+  },
+  "boss": {
+    "state": "ok",
+    "data": {
+      "humanResult": {
+        "resultList": []
+      },
+      "companyHumanResult": {
+        "graphId": 2343820668,
+        "companyName": "宁德时代新能源科技股份有限公司",
+        "resultList": [
+          {
+            "name": "黄世霖",
+            "hid": 2294446066,
+            "cid": 2343820668,
+            "position": "创始人",
+            "companyNum": 19,
+            "linkWeb": "https://www.tianyancha.com/human/2294446066-c2343820668",
+            "companyName": "宁德时代新能源科技股份有限公司"
+          }
+        ]
+      }
+    }
+  },
+  "detail": {
+    "id": 2343820668,
+    "name": "宁德时代新能源科技股份有限公司",
+    "legalPersonName": "曾毓群",
+    "regStatus": "存续",
+    "creditCode": "91350900587527783P",
+    "regCapital": "456360.8365万人民币",
+    "actualCapital": "462665.1万人民币",
+    "estiblishTime": 1323964800000,
+    "companyOrgType": "股份有限公司(上市、自然人投资或控股)",
+    "industry2017": "电气机械和器材制造业",
+    "regLocation": "福建省宁德市蕉城区漳湾镇新港路2号",
+    "businessScope": "锂离子电池、锂聚合物电池、燃料电池、动力电池、超大容量储能电池、超级电容器、电池管理系统及可充电电池包、风光电储能系统、相关设备仪器的开发、生产和销售及售后服务；对新能源行业的投资；锂电池及相关产品的技术服务、测试服务以及咨询服务。（依法须经批准的项目，经相关部门批准后方可开展经营活动）",
+    "phoneNumber": "0593-8901666",
+    "email": "catl-ir@catl.com",
+    "websiteList": "www.catl.com",
+    "regNumber": "350902100027641",
+    "orgNumber": "58752778-3",
+    "regInstitute": "宁德市市场监督管理局",
+    "approvedTime": 1782748800000,
+    "staffNumRange": "10000人以上",
+    "historyNames": "宁德时代新能源科技有限公司"
+  },
+  "paths": {
+    "paths": [
+      {
+        "id": "240a8582eb07c5e2edd8bdd51adf0fe1",
+        "level": 1,
+        "path": [
+          {
+            "companyId": 2343820668,
+            "companyTag": null,
+            "entityName": "宁德时代新能源科技股份有限公司",
+            "entityType": 1,
+            "humanNameId": null,
+            "humanPid": null,
+            "isKey": false,
+            "isShellCompany": false,
+            "isTarget": true,
+            "type": "NODE"
+          },
+          {
+            "descText": "法定代表人，董事长,董事,总经理",
+            "direction": "<-",
+            "relationTypes": "LEGAL,SERVE",
+            "sourceId": "L0TH4MH09HFB5S026",
+            "targetId": "2343820668",
+            "type": "RELATION"
+          },
+          {
+            "companyId": 2343820668,
+            "companyTag": null,
+            "entityName": "曾毓群",
+            "entityType": 2,
+            "humanNameId": 1969350112,
+            "humanPid": "L0TH4MH09HFB5S026",
+            "isKey": false,
+            "isShellCompany": null,
+            "isTarget": true,
+            "type": "NODE"
+          }
+        ]
+      }
+    ]
+  }
+}
