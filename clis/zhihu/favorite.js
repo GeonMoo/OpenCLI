@@ -1,5 +1,5 @@
-import { CliError, CommandExecutionError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { CliError, CommandExecutionError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { assertAllowedKinds, parseTarget } from './target.js';
 import { buildResultRow, requireExecute } from './write-shared.js';
 function normalizeCollectionName(value) {

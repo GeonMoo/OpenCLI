@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { __test__ } from './shared.js';
-import { ArgumentError } from '@jackwener/opencli/errors';
+import { ArgumentError } from '@geonmoo/opencli/errors';
 
 const {
     extractMedia,

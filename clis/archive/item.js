@@ -1,10 +1,10 @@
 // archive item: Internet Archive item metadata (one row per identifier).
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     ArgumentError,
     CommandExecutionError,
     EmptyResultError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 
 const IDENTIFIER_RE = /^[A-Za-z0-9._-]+$/;
 

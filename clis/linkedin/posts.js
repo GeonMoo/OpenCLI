@@ -1,4 +1,4 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
   collectPosts,
   DEFAULT_POSTS_LIMIT,

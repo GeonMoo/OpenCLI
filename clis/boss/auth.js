@@ -1,4 +1,4 @@
-import { AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
 // Keep the helper within the adapter so `opencli adapter eject boss` remains runnable.
 import { registerSiteAuthCommands } from '../_shared/site-auth.js';
 

@@ -1,8 +1,9 @@
 {
-  "name": "@jackwener/opencli",
+  "name": "@geonmoo/opencli",
   "version": "1.8.8",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   },
   "description": "Make any website or Electron App your CLI. AI-powered.",
   "engines": {
@@ -50,11 +51,12 @@
     "clean-dist": "node scripts/clean-dist.cjs",
     "start": "node dist/src/main.js",
     "start:bun": "bun dist/src/main.js",
-    "preuninstall": "node -e \"fetch('http://127.0.0.1:19825/shutdown',{method:'POST',headers:{'X-OpenCLI':'1'},signal:AbortSignal.timeout(3000)}).catch(()=>{})\" || true",
-    "postinstall": "node scripts/postinstall.js || true; node scripts/fetch-adapters.js || true",
+    "preuninstall": "node -e \"fetch('http://127.0.0.1:19825/shutdown',{method:'POST',headers:{'X-OpenCLI':'1'},signal:AbortSignal.timeout(3000)}).catch(()=>{})\"",
+    "postinstall": "node scripts/postinstall.js && node scripts/fetch-adapters.js",
     "typecheck": "tsc --noEmit",
     "prepare": "node scripts/prepare.cjs",
     "prepublishOnly": "npm run build",
+    "test:package": "node scripts/test-package.mjs",
     "test": "vitest run --project unit --project extension --project adapter",
     "test:bun": "bun vitest run --project unit --project extension --project adapter",
     "test:adapter": "vitest run --project adapter",
@@ -77,7 +79,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jackwener/opencli.git"
+    "url": "git+https://github.com/GeonMoo/OpenCLI.git"
   },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",

@@ -7,8 +7,8 @@
  * a real series_id) and surface name / brand / official + dealer price.
  */
 
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, EmptyResultError } from '@geonmoo/opencli/errors';
 import {
     DCD_BASE,
     SEARCH_COLUMNS,

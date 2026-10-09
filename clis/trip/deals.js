@@ -8,8 +8,8 @@
  * browser-mode trip commands read their result cards. The per-campaign terms and
  * bookable inventory live on the linked page and are out of scope here.
  */
-import { AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { WAIT_FOR_DEALS_JS, buildDealsExtractJs, buildDealsUrl, parseListLimit } from './utils.js';
 
 cli({

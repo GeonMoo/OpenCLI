@@ -6,10 +6,10 @@
  *
  * Accepts a full xiaohongshu.com URL with xsec_token or an xhslink short link.
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { formatCookieHeader } from '@jackwener/opencli/download';
-import { downloadMedia } from '@jackwener/opencli/download/media-download';
-import { CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { formatCookieHeader } from '@geonmoo/opencli/download';
+import { downloadMedia } from '@geonmoo/opencli/download/media-download';
+import { CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { readXhsDetailPage } from './risk-control.js';
 import { buildNoteUrl, parseNoteId } from './note-helpers.js';
 /**

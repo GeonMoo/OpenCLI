@@ -5,8 +5,8 @@
  * own ranked recommendation list (up to ~999 for most regions).
  */
 
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CliError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CliError } from '@geonmoo/opencli/errors';
 import {
     WE_ORIGIN, SEARCH_COLUMNS, SORT_CODES,
     requirePage, navigateTo, pageFetchJson,

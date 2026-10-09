@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import { __test__ } from './bookmarks.js';
 
 const { parseBookmarks, extractBookmarkTweet } = __test__;

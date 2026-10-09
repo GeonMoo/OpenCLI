@@ -2,8 +2,8 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, ConfigError, TimeoutError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, ConfigError, TimeoutError } from '@geonmoo/opencli/errors';
 import './music.js';
 import {
     MINIMAX_API_KEY_VAR,

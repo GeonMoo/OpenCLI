@@ -7,8 +7,8 @@
  * resolve the requested port name to its `sN` code, then loads that port's
  * results and reads the `.route_info` cards (see helpers in utils).
  */
-import { AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     WAIT_FOR_CRUISE_JS,
     buildCruiseExtractJs,

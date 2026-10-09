@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import './task-create.js';
 
 function makePage(envelope) {

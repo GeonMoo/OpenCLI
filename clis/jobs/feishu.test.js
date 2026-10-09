@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 import { extractFeishuList, extractFeishuDetail, searchFeishu } from './feishu.js';
 const html = readFileSync(new URL('./__fixtures__/feishu.html', import.meta.url), 'utf8');
 afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });

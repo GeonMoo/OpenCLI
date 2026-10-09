@@ -1,10 +1,10 @@
 // archive search: Internet Archive Advanced Search across all mediatypes.
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     ArgumentError,
     CommandExecutionError,
     EmptyResultError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 
 const SORT_OPTIONS = ['downloads', 'date', 'addeddate', 'week', 'title'];
 const SORT_ALIAS = { added: 'addeddate', published: 'date' };

@@ -1,5 +1,5 @@
-import { cli } from '@jackwener/opencli/registry';
-import { CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli } from '@geonmoo/opencli/registry';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
 cli({
     site: 'jike',
     name: 'post',

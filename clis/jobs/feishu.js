@@ -1,4 +1,4 @@
-import { AuthRequiredError, CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { AuthRequiredError, CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 
 // Strategy: UI_SELECTOR / visible-ui.
 // 2026-10-04: Xiaomi Node fetch returned HTTP 200 HTML shell with no job cards.

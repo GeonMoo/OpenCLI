@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import { ensureApplet, ggbEval, ggbGetProperty, ggbListObjects, ggbWaitForObjectCount } from './utils.js';
 import './add-circle.js';
 import './add-line.js';

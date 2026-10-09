@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { createPageMock } from '../test-utils.js';
 import './board-pins.js';
 

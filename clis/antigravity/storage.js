@@ -7,12 +7,12 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { execFileSync } from 'node:child_process';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     ArgumentError,
     CommandExecutionError,
     EmptyResultError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 import { unwrapEvaluateResult } from './_actions.js';
 
 const STORAGE_COLUMNS = [

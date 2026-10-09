@@ -1,6 +1,6 @@
-import { CDPBridge } from '@jackwener/opencli/browser/cdp';
-import { ArgumentError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { CDPBridge } from '@geonmoo/opencli/browser/cdp';
+import { ArgumentError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { activityScript } from './utils.js';
 
 function normalizeEndpoint(value) {

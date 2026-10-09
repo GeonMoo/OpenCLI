@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CommandExecutionError } from '@jackwener/opencli/errors';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
 import { extractMokaList, mapBiliResponse, searchExtra, splitJobText } from './browser-extra.js';
 const mokaHtml = readFileSync(new URL('./__fixtures__/moka.html', import.meta.url), 'utf8');
 afterEach(() => vi.unstubAllGlobals());

@@ -7,8 +7,8 @@
  * sheet sits behind a ByteDance-signed XHR and is deliberately not faked.
  */
 
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
 import {
     SPECS_COLUMNS,
     assertPlainObject,

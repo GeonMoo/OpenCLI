@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError } from '@geonmoo/opencli/errors';
 import {
     DRIBBBLE_HOST,
     DRIBBBLE_ORIGIN,

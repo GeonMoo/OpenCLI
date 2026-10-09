@@ -1,11 +1,11 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     ArgumentError,
     AuthRequiredError,
     CommandExecutionError,
     EmptyResultError,
     TimeoutError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 
 const DETAIL_PATH = /^\/(job|a)\/(\d+)\.shtml$/;
 

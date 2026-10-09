@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getRegistry, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@jackwener/opencli/errors';
+import { getRegistry, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@geonmoo/opencli/errors';
 import { chatRequest, decodePayload, prepareChat, timestamp } from './chat-utils.js';
 import { contactToRow } from './chatlist.js';
 import { messageToRow } from './chatmsg.js';

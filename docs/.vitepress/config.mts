@@ -276,7 +276,7 @@ export default defineConfig({
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/jackwener/opencli' },
-      { icon: 'npm', link: 'https://www.npmjs.com/package/@jackwener/opencli' },
+      { icon: 'npm', link: 'https://www.npmjs.com/package/@geonmoo/opencli' },
     ],
 
     editLink: {

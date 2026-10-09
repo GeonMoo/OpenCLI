@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { AuthRequiredError, CliError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { AuthRequiredError, CliError } from '@geonmoo/opencli/errors';
 import './recommend.js';
 
 describe('zhihu recommend', () => {

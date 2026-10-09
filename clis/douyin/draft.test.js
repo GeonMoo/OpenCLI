@@ -2,8 +2,8 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterAll, describe, expect, it, vi } from 'vitest';
-import { wrapForEval } from '@jackwener/opencli/browser/utils';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { wrapForEval } from '@geonmoo/opencli/browser/utils';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import { buildCoverCheckPanelTextJs } from './draft.js';
 import { createPageMock } from '../test-utils.js';
 // ─── Shared test helpers ────────────────────────────────────────────

@@ -13,8 +13,8 @@
  *
  * Anti-bot: not detected on first-page navigation (PR #1481 recon 2026-05-12).
  */
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { mapHotelRow, parseCityId, parseIsoDate, parseStrictIntegerRange } from './utils.js';
 
 const MIN_LIMIT = 1;

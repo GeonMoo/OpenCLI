@@ -1,6 +1,6 @@
 // Pinterest pin-update — edit a pin's text or move it to another board (PinResource/update).
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { PINTEREST_BASE, resolveBoardTarget, parsePinId, pinterestResourceUpdate, resolveBoardId, resolveSection } from './utils.js';
 
 cli({

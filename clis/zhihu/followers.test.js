@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { AuthRequiredError, CliError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { AuthRequiredError, CliError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import './followers.js';
 
 describe('zhihu followers', () => {

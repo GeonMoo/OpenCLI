@@ -5,7 +5,7 @@ import {
   CommandExecutionError,
   EmptyResultError,
   TimeoutError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 import {
   fetchThread,
   htmlToText,

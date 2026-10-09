@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { AuthRequiredError, CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { AuthRequiredError, CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 
 const LIEPIN_HOME_URL = 'https://c.liepin.com/';
 

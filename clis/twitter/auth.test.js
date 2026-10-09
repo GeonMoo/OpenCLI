@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import './auth.js';
 
 const SESSION_COOKIES = [{ name: 'auth_token' }, { name: 'ct0' }];

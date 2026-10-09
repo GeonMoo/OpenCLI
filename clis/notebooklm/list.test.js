@@ -17,8 +17,8 @@ vi.mock('./utils.js', async () => {
         requireNotebooklmSession: mockRequireNotebooklmSession,
     };
 });
-import { getRegistry } from '@jackwener/opencli/registry';
-import { AuthRequiredError, CliError, EmptyResultError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { AuthRequiredError, CliError, EmptyResultError } from '@geonmoo/opencli/errors';
 import './list.js';
 describe('notebooklm list', () => {
     const command = getRegistry().get('notebooklm/list');

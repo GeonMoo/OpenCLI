@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 
 // Mock logger
-vi.mock('@jackwener/opencli/logger', () => ({
+vi.mock('@geonmoo/opencli/logger', () => ({
   log: {
     info: vi.fn(),
     status: vi.fn(),

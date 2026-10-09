@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 
 const BASE_URL = 'https://www.huodongxing.com/events';
 const MAX_LIMIT = 50;

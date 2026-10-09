@@ -1,5 +1,5 @@
-import { AuthRequiredError, EmptyResultError, selectorError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { AuthRequiredError, EmptyResultError, selectorError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 /**
  * band mentions — Show Band notifications where you were @mentioned.
  *

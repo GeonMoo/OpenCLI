@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { NOTEBOOKLM_DOMAIN, NOTEBOOKLM_SITE } from './shared.js';
 import { callNotebooklmRpc } from './rpc.js';
 import { buildNotebooklmNotebookUrl, listNotebooklmSourcesViaRpc, parseNotebooklmNotebookTarget, requireNotebooklmExecute, requireNotebooklmSession } from './utils.js';

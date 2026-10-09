@@ -1,4 +1,4 @@
-import { AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { registerSiteAuthCommands } from '../_shared/site-auth.js';
 import { BASE, checkPage } from './utils.js';
 

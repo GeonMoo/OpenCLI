@@ -1,4 +1,4 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { BASE, assertRequiredFields, buildPlayerUrl, gotoAndWait, parseMoneyUsd, parseNumber, parsePlayerRef } from './utils.js';
 
 cli({

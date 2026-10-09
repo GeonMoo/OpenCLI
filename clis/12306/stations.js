@@ -4,8 +4,8 @@
  * Queries the public `station_name.js` bundle and filters by the user's
  * keyword. Anonymous, no session needed.
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { fetchStationBundle, normalizeLimit } from './utils.js';
 
 const MAX_LIMIT = 50;

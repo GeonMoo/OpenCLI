@@ -1,5 +1,5 @@
-import { ArgumentError, CommandExecutionError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { SHARE_API, extractPwdId, apiPost, getToken, pollTask, findFolder, } from './utils.js';
 async function saveShare(page, pwdId, stoken, fidList, targetFid, saveAll) {
     const data = await apiPost(page, `${SHARE_API}/save?pr=ucpro&fr=pc`, {

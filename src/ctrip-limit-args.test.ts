@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import { prepareCommandArgs } from './execution.js';
 import '../clis/ctrip/search.js';
 import '../clis/ctrip/hotel-suggest.js';

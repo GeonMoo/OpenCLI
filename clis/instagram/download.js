@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CliError, CommandExecutionError, EXIT_CODES } from '@jackwener/opencli/errors';
-import { httpDownload } from '@jackwener/opencli/download';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CliError, CommandExecutionError, EXIT_CODES } from '@geonmoo/opencli/errors';
+import { httpDownload } from '@geonmoo/opencli/download';
 const INSTAGRAM_APP_ID = '936619743392459';
 const INSTAGRAM_HOST_SUFFIX = 'instagram.com';
 const INSTAGRAM_SHORTCODE_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';

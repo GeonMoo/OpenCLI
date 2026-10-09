@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import './search.js';
 describe('weread/search regression', () => {
     beforeEach(() => {

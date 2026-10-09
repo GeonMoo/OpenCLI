@@ -1,7 +1,7 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
-import { log } from '@jackwener/opencli/logger';
-import { isRecord } from '@jackwener/opencli/utils';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { log } from '@geonmoo/opencli/logger';
+import { isRecord } from '@geonmoo/opencli/utils';
 const XUEQIU_SYMBOL_PATTERN = /^(?:[A-Z]{2}\d{5,6}|\d{4,6}|[A-Z]{1,5}(?:[.-][A-Z]{1,2})?)$/;
 const FAILURE_REASON_BY_KIND = {
     auth: 'auth failure',

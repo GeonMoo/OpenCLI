@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { parseTweetUrl, unwrapBrowserResult } from './shared.js';
 import {
     COMPOSER_FILE_INPUT_SELECTOR,

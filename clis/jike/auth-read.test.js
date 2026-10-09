@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { requireJikeIdentity } from './utils.js';
 import './auth.js';
 import './feed.js';

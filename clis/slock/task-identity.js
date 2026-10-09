@@ -1,4 +1,4 @@
-import { CommandExecutionError } from '@jackwener/opencli/errors';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
 
 export function assertTaskIdentity(t, expectedId, commandName) {
   const taskId = t?.id;

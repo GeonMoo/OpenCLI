@@ -1,4 +1,4 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { DEEPSEEK_DOMAIN, getConversationList } from './utils.js';
 
 export const historyCommand = cli({

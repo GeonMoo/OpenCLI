@@ -1,4 +1,4 @@
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@jackwener/opencli/errors';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@geonmoo/opencli/errors';
 
 export const BASE = 'https://www.tianyancha.com';
 export const BASE_INFO_KEY = '/biz-service/cloud-other-information/companyinfo/baseinfo/web';

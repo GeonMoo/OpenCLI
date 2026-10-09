@@ -1,8 +1,8 @@
 /**
  * YouTube subscriptions — list of subscribed channels from /feed/channels.
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { extractSubscriptionChannel } from './utils.js';
 
 cli({

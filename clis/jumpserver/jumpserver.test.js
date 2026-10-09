@@ -5,11 +5,11 @@ import {
   CommandExecutionError,
   EmptyResultError,
   TimeoutError,
-} from '@jackwener/opencli/errors';
-import { getRegistry, Strategy } from '@jackwener/opencli/registry';
+} from '@geonmoo/opencli/errors';
+import { getRegistry, Strategy } from '@geonmoo/opencli/registry';
 
 const mockHttpDownload = vi.hoisted(() => vi.fn());
-vi.mock('@jackwener/opencli/download', () => ({ httpDownload: mockHttpDownload }));
+vi.mock('@geonmoo/opencli/download', () => ({ httpDownload: mockHttpDownload }));
 
 import './connect.js';
 import './exec.js';

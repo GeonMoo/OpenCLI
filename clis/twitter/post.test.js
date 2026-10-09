@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { CommandExecutionError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import './post.js';
 
 vi.mock('node:fs', async (importOriginal) => {

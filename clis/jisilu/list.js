@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@geonmoo/opencli/errors';
 
 const BASE = 'https://www.jisilu.cn';
 const COMMON = [['bondCode', 'bond_id', 'code'], ['bondName', 'bond_nm', 'text'], ['bondPrice', 'price', 'number'], ['stockCode', 'stock_id', 'code'], ['stockName', 'stock_nm', 'text']];

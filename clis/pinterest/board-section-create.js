@@ -1,6 +1,6 @@
 // Pinterest board-section-create — add a section to one of your boards (BoardSectionResource/create).
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { PINTEREST_BASE, resolveBoardTarget, pinterestResourceCreate, resolveBoardId } from './utils.js';
 
 cli({

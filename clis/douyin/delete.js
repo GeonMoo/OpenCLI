@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { browserFetch } from './_shared/browser-fetch.js';
 import { requireObjectEvaluateResult } from './_shared/evaluate-result.js';
 

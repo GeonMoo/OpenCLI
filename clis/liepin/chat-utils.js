@@ -1,4 +1,4 @@
-import { ArgumentError, AuthRequiredError, CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 
 // Origin, type 0, client ID and form fields observed in Liepin's candidate IM client.
 // ponytail: Refresh these client headers if Liepin changes its IM protocol.

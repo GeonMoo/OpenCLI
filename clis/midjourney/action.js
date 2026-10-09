@@ -1,6 +1,6 @@
-import { ArgumentError, CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
-import { log } from '@jackwener/opencli/logger';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { ArgumentError, CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
+import { log } from '@geonmoo/opencli/logger';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
   ACTION_CHOICES,
   assertActionPlan,

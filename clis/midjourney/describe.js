@@ -1,5 +1,5 @@
-import { ArgumentError, CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { ArgumentError, CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
   MIDJOURNEY_IMAGINE_URL,
   displayPath,

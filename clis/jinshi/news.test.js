@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import { afterEach, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { CommandExecutionError, EmptyResultError, TimeoutError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { CommandExecutionError, EmptyResultError, TimeoutError } from '@geonmoo/opencli/errors';
 import './news.js';
 
 const html = readFileSync(new URL('./__fixtures__/news.html', import.meta.url), 'utf8');

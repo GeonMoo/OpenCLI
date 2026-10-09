@@ -1,5 +1,5 @@
-import { AuthRequiredError, CommandExecutionError, selectorError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { AuthRequiredError, CommandExecutionError, selectorError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { buildChatUrl, buildExtractChatStateEvaluate, buildSendMessageEvaluate, requireEvaluateObject } from './im.js';
 import { normalizeNumericId } from './utils.js';
 

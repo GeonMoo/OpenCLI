@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { ArgumentError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { pixivFetch } from './utils.js';
 import { dateOnly, tagsToString } from './bookmark-utils.js';
 

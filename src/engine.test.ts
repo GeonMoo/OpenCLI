@@ -308,9 +308,9 @@ cli({
       await ensureUserCliCompatShims(tempOpencliRoot);
       await fs.promises.mkdir(siteDir, { recursive: true });
       await fs.promises.writeFile(commandPath, `
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError } from '@jackwener/opencli/errors';
-import { htmlToMarkdown } from '@jackwener/opencli/utils';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
+import { htmlToMarkdown } from '@geonmoo/opencli/utils';
 
 cli({
   site: 'legacy-site',

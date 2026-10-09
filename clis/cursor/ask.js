@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, selectorError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, selectorError } from '@geonmoo/opencli/errors';
 export const askCommand = cli({
     site: 'cursor',
     name: 'ask',

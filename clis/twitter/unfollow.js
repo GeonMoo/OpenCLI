@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 cli({
     site: 'twitter',
     name: 'unfollow',

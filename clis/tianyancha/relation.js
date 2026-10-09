@@ -1,4 +1,4 @@
-import { CommandExecutionError, EmptyResultError, TimeoutError, AuthRequiredError } from '@jackwener/opencli/errors';
+import { CommandExecutionError, EmptyResultError, TimeoutError, AuthRequiredError } from '@geonmoo/opencli/errors';
 import { BASE, checkPage, cleanText, readState, resolveCompany } from './utils.js';
 
 // Strategy: INTERCEPT / internal-unstable. The UI requests signed graph data;

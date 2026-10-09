@@ -20,7 +20,7 @@ vi.mock('./utils.js', () => ({
     waitForGeminiImages: mocks.waitForGeminiImages,
 }));
 
-vi.mock('@jackwener/opencli/utils', () => ({
+vi.mock('@geonmoo/opencli/utils', () => ({
     saveBase64ToFile: mocks.saveBase64ToFile,
 }));
 

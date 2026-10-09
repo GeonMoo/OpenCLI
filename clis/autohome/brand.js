@@ -11,7 +11,7 @@
  * for that, use `dongchedi search`.
  */
 
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     AH_BASE,
     BRAND_COLUMNS,

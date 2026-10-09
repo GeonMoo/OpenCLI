@@ -1,6 +1,6 @@
-import { CliError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { isRecord } from '@jackwener/opencli/utils';
+import { CliError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { isRecord } from '@geonmoo/opencli/utils';
 const GITEE_EXPLORE_URL = 'https://gitee.com/explore';
 const MAX_LIMIT = 50;
 const MAX_DESCRIPTION_LENGTH = 48;

@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { AuthRequiredError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { AuthRequiredError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { NOTEBOOKLM_DOMAIN, NOTEBOOKLM_SITE } from './shared.js';
 import { ensureNotebooklmHome, listNotebooklmLinks, listNotebooklmViaRpc, readCurrentNotebooklm, requireNotebooklmSession, } from './utils.js';
 cli({

@@ -3,8 +3,8 @@
  *
  * Navigates to the 36kr search results page and scrapes rendered articles.
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CliError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CliError } from '@geonmoo/opencli/errors';
 cli({
     site: '36kr',
     name: 'search',

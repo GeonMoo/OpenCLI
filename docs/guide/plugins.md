@@ -157,7 +157,7 @@ my-plugin/
   "version": "0.1.0",
   "type": "module",
   "peerDependencies": {
-    "@jackwener/opencli": ">=1.0.0"
+    "@geonmoo/opencli": ">=1.0.0"
   }
 }
 ```
@@ -165,7 +165,7 @@ my-plugin/
 `my-command.ts`:
 
 ```typescript
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 
 cli({
   site: 'my-plugin',
@@ -196,7 +196,7 @@ When you run `opencli plugin install`, TS plugins are automatically set up:
 
 1. **Clone** — `git clone --depth 1` from GitHub
 2. **npm install** — Resolves regular dependencies
-3. **Host symlink** — Links the running `@jackwener/opencli` into the plugin's `node_modules/` so `import from '@jackwener/opencli/registry'` always resolves against the host
+3. **Host symlink** — Links the running `@geonmoo/opencli` into the plugin's `node_modules/` so `import from '@geonmoo/opencli/registry'` always resolves against the host
 4. **Transpile** — Compiles `.ts` → `.js` via `esbuild` (production `node` cannot load `.ts` directly)
 
 On startup, if both `my-command.ts` and `my-command.js` exist, the `.js` version is loaded to avoid duplicate registration.
@@ -219,7 +219,7 @@ Restart opencli (or open a new terminal) — plugins are discovered at startup.
 
 ### TS plugin import errors
 
-If you see `Cannot find module '@jackwener/opencli/registry'`, the host symlink may be broken. Reinstall the plugin:
+If you see `Cannot find module '@geonmoo/opencli/registry'`, the host symlink may be broken. Reinstall the plugin:
 
 ```bash
 opencli plugin uninstall my-plugin

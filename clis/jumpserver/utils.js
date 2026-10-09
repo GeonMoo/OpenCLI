@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@jackwener/opencli/errors';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@geonmoo/opencli/errors';
 
 const JUMPSERVER_STATE_KEY = '__opencliJumpServer';
 const JUMPSERVER_FACADE_VERSION = 7;

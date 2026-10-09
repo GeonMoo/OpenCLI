@@ -259,7 +259,7 @@ export function toEnvelope(err: unknown): ErrorEnvelope {
   } : undefined;
   // Duck typing: accept own CliError instances AND cross-package copies that
   // carry the same shape. `instanceof` fails when the throwing module resolves
-  // a different copy of @jackwener/opencli (e.g. a plugin with its own
+  // a different copy of @geonmoo/opencli (e.g. a plugin with its own
   // node_modules) — those errors used to degrade to UNKNOWN and lose `hint`.
   //
   // `exitCode` is the discriminator: CliError's constructor always assigns it

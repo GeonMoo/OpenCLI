@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
-import { CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { parseTweetUrl, buildTwitterArticleScopeSource } from './shared.js';
 import {
     COMPOSER_FILE_INPUT_SELECTOR,

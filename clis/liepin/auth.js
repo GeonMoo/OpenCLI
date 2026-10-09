@@ -1,4 +1,4 @@
-import { AuthRequiredError, CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { AuthRequiredError, CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 // Keep the helper within the adapter so `opencli adapter eject liepin` remains runnable.
 import { registerSiteAuthCommands } from '../_shared/site-auth.js';
 

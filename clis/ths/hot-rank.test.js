@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CliError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { CliError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import { __test__ } from './hot-rank.js';
 
 describe('ths hot-rank command', () => {

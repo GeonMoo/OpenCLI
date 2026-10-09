@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ArgumentError } from '@jackwener/opencli/errors';
+import { ArgumentError } from '@geonmoo/opencli/errors';
 import { __test__ } from './image.js';
 
 describe('grok image helpers', () => {

@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { NOTEBOOKLM_DOMAIN, NOTEBOOKLM_SITE } from './shared.js';
 import { callNotebooklmRpc } from './rpc.js';
 import { buildNotebooklmNotebookUrl, ensureNotebooklmHome, getNotebooklmAuthuser, parseNotebooklmNotebookTarget, requireNotebooklmExecute, requireNotebooklmSession, verifyNotebooklmSourceAdded } from './utils.js';

@@ -1,10 +1,10 @@
 // archive wayback: Wayback Machine closest-snapshot lookup for a URL.
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     ArgumentError,
     CommandExecutionError,
     EmptyResultError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 
 function normalizeTimestamp(raw) {
     // Accept YYYY, YYYYMM, YYYYMMDD, YYYYMMDDhh, YYYYMMDDhhmm, YYYYMMDDhhmmss,

@@ -1,5 +1,5 @@
-import { ArgumentError, AuthRequiredError, TimeoutError, getErrorMessage } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { ArgumentError, AuthRequiredError, TimeoutError, getErrorMessage } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 
 const DEFAULT_TIMEOUT_SECONDS = 300;
 const POLL_INTERVAL_MS = 2000;

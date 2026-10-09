@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import { describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { extractRelations, SEARCH_COLUMNS } from './search.js';
 import { parseRelationPaths } from './relation.js';
 import { calendarDate, companyId, resolveCompany } from './utils.js';

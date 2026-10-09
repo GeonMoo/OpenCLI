@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { createHash } from 'node:crypto';
 import { canonicalizeLinkedInThreadUrl, normalizeWhitespace, unwrapEvaluateResult } from './shared.js';
 

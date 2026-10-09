@@ -1,4 +1,4 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { buildMediumUserUrl, loadMediumPosts } from './utils.js';
 cli({
     site: 'medium',

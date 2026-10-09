@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 import { JUPYTER_LAB_URL, assertJupyterLab, normalizePositiveInteger, sleepPage } from './utils.js';
 
 const INPUT_SELECTOR = '.jp-CodeConsole-input .jp-CodeConsole-promptCell .cm-content[contenteditable="true"]';

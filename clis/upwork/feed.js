@@ -10,12 +10,12 @@
  * onboarding flow and never see the feed state.
  */
 
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     CommandExecutionError,
     EmptyResultError,
     AuthRequiredError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 import {
     buildFeedUrl,
     feedStateKey,

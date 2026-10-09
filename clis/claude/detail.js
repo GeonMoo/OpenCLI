@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { EmptyResultError } from '@geonmoo/opencli/errors';
 import { CLAUDE_DOMAIN, MESSAGE_SELECTOR, getVisibleMessages, ensureClaudeLogin, requireConversationId } from './utils.js';
 
 export const detailCommand = cli({

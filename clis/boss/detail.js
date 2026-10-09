@@ -1,8 +1,8 @@
 /**
  * BOSS直聘 job detail — extract the fully rendered job page. Read-only.
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { readRequiredString, requirePage, navigateTo, verbose } from './utils.js';
 
 const BOSS_DOMAIN = 'www.zhipin.com';

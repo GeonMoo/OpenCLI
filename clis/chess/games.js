@@ -2,8 +2,8 @@
  * Chess.com recent games from monthly archives. Walks the archive
  * list newest-first and fetches as few months as needed to fill --limit.
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { chessApi, validateUsername, mapGameRow } from './utils.js';
 
 const MAX_LIMIT = 100;

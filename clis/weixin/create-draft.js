@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CliError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CliError, CommandExecutionError } from '@geonmoo/opencli/errors';
 
 const WEIXIN_DOMAIN = 'mp.weixin.qq.com';
 const WEIXIN_HOME = 'https://mp.weixin.qq.com/';

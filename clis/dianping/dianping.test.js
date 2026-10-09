@@ -8,8 +8,8 @@ import {
     AuthRequiredError,
     CommandExecutionError,
     EmptyResultError,
-} from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+} from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import {
     SEARCH_COLUMNS,
     SHOP_COLUMNS,

@@ -1,5 +1,5 @@
-import { CommandExecutionError } from '@jackwener/opencli/errors';
-import { Strategy } from '@jackwener/opencli/registry';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
+import { Strategy } from '@geonmoo/opencli/registry';
 import { assertUsableState, buildProvenance, cleanText, extractAsin, extractCategoryNodeId, extractReviewCountFromCardText, firstMeaningfulLine, gotoAndReadState, isRankingPaginationUrl, normalizeProductUrl, parsePriceText, parseRatingValue, parseReviewCount, resolveRankingUrl, toAbsoluteAmazonUrl, uniqueNonEmpty, } from './shared.js';
 function parseRank(rawRank, fallback) {
     const normalized = cleanText(rawRank);

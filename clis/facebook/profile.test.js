@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import './profile.js';
 
 function runExtract(html, username = 'zuck') {

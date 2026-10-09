@@ -40,11 +40,11 @@ function parseStrategy(rawStrategy: string | undefined, fallback: Strategy = Str
 const PACKAGE_ROOT = findPackageRoot(fileURLToPath(import.meta.url));
 
 /**
- * Ensure ~/.opencli/node_modules/@jackwener/opencli symlink exists so that
- * user CLIs in ~/.opencli/clis/ can `import { cli } from '@jackwener/opencli/registry'`.
+ * Ensure ~/.opencli/node_modules/@geonmoo/opencli symlink exists so that
+ * user CLIs in ~/.opencli/clis/ can `import { cli } from '@geonmoo/opencli/registry'`.
  *
  * This is the sole resolution mechanism — adapters use package exports
- * (e.g. `@jackwener/opencli/registry`, `@jackwener/opencli/errors`) and
+ * (e.g. `@geonmoo/opencli/registry`, `@geonmoo/opencli/errors`) and
  * Node.js resolves them through this symlink.
  */
 export async function ensureUserCliCompatShims(baseDir: string = USER_OPENCLI_DIR): Promise<void> {
@@ -60,24 +60,26 @@ export async function ensureUserCliCompatShims(baseDir: string = USER_OPENCLI_DI
     await fs.promises.writeFile(pkgJsonPath, pkgJsonContent, 'utf-8');
   }
 
-  // Create node_modules/@jackwener/opencli symlink pointing to the installed package root.
+  // Keep the upstream name available for existing user adapters.
   const opencliRoot = PACKAGE_ROOT;
-  const symlinkDir = path.join(baseDir, 'node_modules', '@jackwener');
-  const symlinkPath = path.join(symlinkDir, 'opencli');
-  try {
-    let needsUpdate = true;
+  for (const scope of ['@geonmoo', '@jackwener']) {
+    const symlinkDir = path.join(baseDir, 'node_modules', scope);
+    const symlinkPath = path.join(symlinkDir, 'opencli');
     try {
-      const existing = await fs.promises.readlink(symlinkPath);
-      if (existing === opencliRoot) needsUpdate = false;
-    } catch { /* doesn't exist */ }
-    if (needsUpdate) {
-      await fs.promises.mkdir(symlinkDir, { recursive: true });
-      try { await fs.promises.rm(symlinkPath, { recursive: true, force: true }); } catch { /* doesn't exist */ }
-      const symlinkType = process.platform === 'win32' ? 'junction' : 'dir';
-      await fs.promises.symlink(opencliRoot, symlinkPath, symlinkType);
+      let needsUpdate = true;
+      try {
+        const existing = await fs.promises.readlink(symlinkPath);
+        if (existing === opencliRoot) needsUpdate = false;
+      } catch { /* doesn't exist */ }
+      if (needsUpdate) {
+        await fs.promises.mkdir(symlinkDir, { recursive: true });
+        try { await fs.promises.rm(symlinkPath, { recursive: true, force: true }); } catch { /* doesn't exist */ }
+        const symlinkType = process.platform === 'win32' ? 'junction' : 'dir';
+        await fs.promises.symlink(opencliRoot, symlinkPath, symlinkType);
+      }
+    } catch (err) {
+      log.warn(`Could not create symlink at ${symlinkPath}: ${getErrorMessage(err)}`);
     }
-  } catch (err) {
-    log.warn(`Could not create symlink at ${symlinkPath}: ${getErrorMessage(err)}`);
   }
 }
 

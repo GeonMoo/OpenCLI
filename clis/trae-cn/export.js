@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { normalizeLimit, readTraeMessages } from './utils.js';
 
 export const exportCommand = cli({

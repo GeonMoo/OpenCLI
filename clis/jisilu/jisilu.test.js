@@ -1,7 +1,7 @@
 import { it } from 'vitest';
 import assert from 'node:assert/strict';
 import { mapRows, parseLimit, readTableState, VIEWS } from './list.js';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 
 it('maps page state without corrupting fields, units or text', () => {
   const sample = { bond_id: '113046', bond_nm: '金田转债', stock_id: '002049', stock_nm: '紫光国微', price: '111.330', increase_rt: 0, convert_price: '97.010', premium_rt: -0.34, put_convert_price_ratio: '70.000', put_convert_price: '67.907', put_price: '100.000', time: '回售中', put_tc: '条款, "原文"\n第二行', progress_nm: '申购<br>申购代码371149', progress_full: '董事会预案\n同意注册\n' };

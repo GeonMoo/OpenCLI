@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 export const searchCommand = cli({
     site: 'discord-app',
     name: 'search',

@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
-import { getRegistry, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError } from '@jackwener/opencli/errors';
+import { getRegistry, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError } from '@geonmoo/opencli/errors';
 import { __test__, extractRenderedJob } from './detail.js';
 import './detail.js';
 

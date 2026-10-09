@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ArgumentError, CommandExecutionError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import './retweet.js';
 import { createPageMock } from '../test-utils.js';
 import { createTwitterDomPage } from './test-dom-utils.js';

@@ -5,15 +5,15 @@ const { mockDownloadMedia, mockFormatCookieHeader } = vi.hoisted(() => ({
     mockFormatCookieHeader: vi.fn(() => 'sid=secret'),
 }));
 
-vi.mock('@jackwener/opencli/download/media-download', () => ({
+vi.mock('@geonmoo/opencli/download/media-download', () => ({
     downloadMedia: mockDownloadMedia,
 }));
 
-vi.mock('@jackwener/opencli/download', () => ({
+vi.mock('@geonmoo/opencli/download', () => ({
     formatCookieHeader: mockFormatCookieHeader,
 }));
 
-import { getRegistry } from '@jackwener/opencli/registry';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import './comments.js';
 import './download.js';
 import './feed.js';

@@ -6,8 +6,8 @@
  *
  * Each row carries `rating` / `confidence` so reviewers stand out at a glance.
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { coerceInt, openreviewFetch, readContent, requireForumId } from './utils.js';
 
 const SECTION_FIELDS = [

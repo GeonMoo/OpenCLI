@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { formatCookieHeader, httpDownload } from '@jackwener/opencli/download';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { formatCookieHeader, httpDownload } from '@geonmoo/opencli/download';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { pixivFetch } from './utils.js';
 import { fetchCurrentBookmarks, normalizeBookmarkType } from './bookmark-utils.js';
 import {

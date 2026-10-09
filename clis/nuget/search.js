@@ -2,8 +2,8 @@
 //
 // Hits `azuresearch-usnc.nuget.org/query?q=…&take=…&prerelease=false`. The `id`
 // column round-trips into `nuget package` for full version history.
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { EmptyResultError } from '@geonmoo/opencli/errors';
 import {
     NUGET_SEARCH_BASE,
     joinAuthors,

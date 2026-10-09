@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { USER_SNAPSHOT_JS } from '../xiaohongshu/user.js';
 import { extractXhsUserNotes, normalizeXhsUserId } from '../xiaohongshu/user-helpers.js';
 

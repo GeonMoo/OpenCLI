@@ -1,5 +1,5 @@
-import { AuthRequiredError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { AuthRequiredError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { clampInt, normalizeNumericId } from '../_shared/common.js';
 cli({
     site: 'jd',

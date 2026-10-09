@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { extractXhsUserNotes, normalizeXhsUserId } from './user-helpers.js';
 /**
  * Host-agnostic IIFE that snapshots the user profile's Pinia store. Exported

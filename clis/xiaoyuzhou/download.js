@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CliError } from '@jackwener/opencli/errors';
-import { httpDownload, sanitizeFilename } from '@jackwener/opencli/download';
-import { formatBytes } from '@jackwener/opencli/download/progress';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CliError } from '@geonmoo/opencli/errors';
+import { httpDownload, sanitizeFilename } from '@geonmoo/opencli/download';
+import { formatBytes } from '@geonmoo/opencli/download/progress';
 import { loadXiaoyuzhouCredentials, requestXiaoyuzhouJson } from './auth.js';
 
 cli({

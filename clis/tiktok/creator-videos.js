@@ -1,11 +1,11 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     ArgumentError,
     AuthRequiredError,
     CommandExecutionError,
     EmptyResultError,
     getErrorMessage,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 
 const STUDIO_CONTENT_URL = 'https://www.tiktok.com/tiktokstudio/content';
 const ITEM_LIST_API_PATH = '/tiktok/creator/manage/item_list/v1/';

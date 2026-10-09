@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { Page as BrowserPage } from '@jackwener/opencli/browser/page';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { Page as BrowserPage } from '@geonmoo/opencli/browser/page';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { buildClickActionJs, buildEnsureComposerOpenJs, buildInspectUploadStageJs, } from './post.js';
 import { resolveCurrentUserId, resolveInstagramRuntimeInfo } from './_shared/runtime-info.js';
 import { INSTAGRAM_HOME_URL, gotoInstagramHome } from './_shared/navigation.js';

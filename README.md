@@ -5,9 +5,9 @@
 > Or run Browser Use against any page — navigate, fill forms, click, extract, automate.
 
 [![中文文档](https://img.shields.io/badge/docs-%E4%B8%AD%E6%96%87-0F766E?style=flat-square)](./README.zh-CN.md)
-[![npm](https://img.shields.io/npm/v/@jackwener/opencli?style=flat-square)](https://www.npmjs.com/package/@jackwener/opencli)
-[![Node.js Version](https://img.shields.io/node/v/@jackwener/opencli?style=flat-square)](https://nodejs.org)
-[![License](https://img.shields.io/npm/l/@jackwener/opencli?style=flat-square)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/@geonmoo/opencli?style=flat-square)](https://www.npmjs.com/package/@geonmoo/opencli)
+[![Node.js Version](https://img.shields.io/node/v/@geonmoo/opencli?style=flat-square)](https://nodejs.org)
+[![License](https://img.shields.io/npm/l/@geonmoo/opencli?style=flat-square)](./LICENSE)
 
 OpenCLI gives you one surface for three different kinds of automation:
 
@@ -35,8 +35,10 @@ OpenCLI requires **Node.js >= 20.18.1** when installed through npm.
 
 ```bash
 node --version
-npm install -g @jackwener/opencli
+npm install -g @geonmoo/opencli
 ```
+
+This package is published from the GeonMoo/OpenCLI fork; upstream attribution remains intact. See the [npm publishing guide](docs/guide/npm-publishing.md).
 
 ### 2. Install the Browser Bridge Extension
 

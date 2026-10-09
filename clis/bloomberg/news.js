@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CliError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CliError } from '@geonmoo/opencli/errors';
 import { extractStoryMediaLinks, renderStoryBody, validateBloombergLink, } from './utils.js';
 cli({
     site: 'bloomberg',

@@ -3,7 +3,7 @@ import {
     AuthRequiredError,
     CommandExecutionError,
     EmptyResultError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 
 const CONTENT_FEED_TYPE = 250;
 const CONTENT_ENTITY_TYPE = 8;

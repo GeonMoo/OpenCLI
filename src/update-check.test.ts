@@ -57,6 +57,7 @@ describe('buildUpdateNotices', () => {
       now,
     });
     expect(lines.cli).toContain('v1.0.0 → v1.0.1');
+    expect(lines.cli).toContain('npm install -g @geonmoo/opencli');
     expect(lines.extension).toBeUndefined();
   });
 

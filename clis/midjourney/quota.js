@@ -1,4 +1,4 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { GPU_COST_MINUTES } from './capabilities.js';
 import {
   creditsToFastMinutes,

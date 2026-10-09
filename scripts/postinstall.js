@@ -191,4 +191,8 @@ function main() {
 
 }
 
-main();
+try {
+  main();
+} catch (err) {
+  console.warn(`[opencli] Optional postinstall setup skipped: ${err.message}`);
+}

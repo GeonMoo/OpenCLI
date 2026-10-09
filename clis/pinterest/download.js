@@ -1,10 +1,10 @@
 // Pinterest download — save a pin's original image to disk (PinResource + httpDownload).
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { httpDownload } from '@jackwener/opencli/download';
-import { formatBytes } from '@jackwener/opencli/download/progress';
-import { CommandExecutionError, EmptyResultError, getErrorMessage } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { httpDownload } from '@geonmoo/opencli/download';
+import { formatBytes } from '@geonmoo/opencli/download/progress';
+import { CommandExecutionError, EmptyResultError, getErrorMessage } from '@geonmoo/opencli/errors';
 import { PINTEREST_BASE, parsePinId, pickPinImage, pinterestResourceFetch } from './utils.js';
 
 cli({

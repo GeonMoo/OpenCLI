@@ -8,8 +8,8 @@
  * by stable utility-class fields (see `buildBusExtractJs` in utils), so this
  * reads by selector rather than positional innerText.
  */
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     WAIT_FOR_BUS_JS,
     buildBusExtractJs,

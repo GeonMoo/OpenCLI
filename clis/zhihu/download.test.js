@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
-import { downloadArticle } from '@jackwener/opencli/download/article-download';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { downloadArticle } from '@geonmoo/opencli/download/article-download';
 import { normalizeContentImages, parseDownloadTarget } from './download-helpers.js';
 
-vi.mock('@jackwener/opencli/download/article-download', () => ({
+vi.mock('@geonmoo/opencli/download/article-download', () => ({
     downloadArticle: vi.fn(async (data) => [{
         title: data.title,
         author: data.author || '-',

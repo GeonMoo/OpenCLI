@@ -3,8 +3,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { JSDOM } from 'jsdom';
 import { describe, expect, it, vi } from 'vitest';
-import { CommandExecutionError, ArgumentError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { CommandExecutionError, ArgumentError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import './publish.js';
 const IMAGE_INPUT_SELECTOR_RESULT = 'input[type="file"][accept*="image"]';
 function createPageMock(evaluateResults, overrides = {}) {

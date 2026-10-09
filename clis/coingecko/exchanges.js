@@ -3,8 +3,8 @@
 // Hits the public `/api/v3/exchanges` endpoint. Returns the columns most
 // useful for an agent: trust score, 24h BTC volume, country, year founded,
 // canonical URL.
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 
 cli({
     site: 'coingecko',

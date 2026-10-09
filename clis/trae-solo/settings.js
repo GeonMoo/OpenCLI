@@ -8,11 +8,11 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     CommandExecutionError,
     EmptyResultError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 import { TRAE_APP_SUPPORT } from './_fs.js';
 
 const TRAE_SETTINGS_JSON = path.join(TRAE_APP_SUPPORT, 'User/settings.json');

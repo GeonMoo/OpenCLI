@@ -1,7 +1,7 @@
 import * as path from 'node:path';
 import { appendFile, writeFile } from 'node:fs/promises';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
 import {
   normalizePositiveInteger,
   normalizeRemoteFile,

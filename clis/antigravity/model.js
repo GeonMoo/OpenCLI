@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, selectorError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, selectorError } from '@geonmoo/opencli/errors';
 import { unwrapEvaluateResult } from './_actions.js';
 
 // Antigravity exposes the active model via the composer button whose

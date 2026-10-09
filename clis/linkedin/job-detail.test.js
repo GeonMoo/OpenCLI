@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import './job-detail.js';
 
 const { normalizeJobUrl, decodeLinkedinRedirect, normalizeDetail } = await import('./job-detail.js').then((m) => m.__test__);

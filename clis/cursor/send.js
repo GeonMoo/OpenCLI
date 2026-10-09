@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { selectorError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { selectorError } from '@geonmoo/opencli/errors';
 export const sendCommand = cli({
     site: 'cursor',
     name: 'send',

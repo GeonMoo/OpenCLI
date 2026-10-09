@@ -1,4 +1,4 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { fetchDanjuanAll } from './danjuan-utils.js';
 cli({
     site: 'xueqiu',

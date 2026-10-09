@@ -1,7 +1,7 @@
 import * as path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { httpDownload } from '@jackwener/opencli/download';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { httpDownload } from '@geonmoo/opencli/download';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import {
   JUPYTER_LAB_URL,
   JUPYTER_ORIGIN,

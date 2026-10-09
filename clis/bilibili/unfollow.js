@@ -4,8 +4,8 @@
  * target, the API call is skipped and `not-following` is returned without
  * touching state.
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { parseSpaceMidUrl, fetchRelationAttribute, waitForRelation } from './relation.js';
 import { apiPost, getSelfUid, requireOkPayload, resolveUid } from './utils.js';
 

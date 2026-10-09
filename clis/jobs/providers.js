@@ -1,4 +1,4 @@
-import { ArgumentError, AuthRequiredError, CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 
 // Official recruitment-site JSON endpoints from the supplied scrapers. Their
 // schema is undocumented (internal-unstable); validate status and shape instead

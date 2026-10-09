@@ -17,6 +17,8 @@ jobs:
   # ── Fast gate: typecheck + build ──
   build:
     runs-on: ${{ matrix.os }}
+    env:
+      OPENCLI_INSTALL_PREFIX: ${{ runner.temp }}/opencli-source-prefix
     strategy:
       fail-fast: false
       matrix:
@@ -29,14 +31,20 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install globally from clean source
+        run: npm install -g . --prefix "${{ env.OPENCLI_INSTALL_PREFIX }}" --no-audit --no-fund
+
+      - name: Verify source install entry point
+        run: node -e "const fs=require('node:fs'); const path=require('node:path'); const bin=path.join(process.env.OPENCLI_INSTALL_PREFIX,process.platform==='win32'?'opencli.cmd':'bin/opencli'); if(!fs.existsSync(bin)) throw new Error('Missing installed opencli command');"
 
       - name: Type check
         run: npx tsc --noEmit
 
       - name: Build
         run: npm run build
+
+      - name: Verify npm package installation
+        run: npm run test:package
 
       # Guard: committed cli-manifest.json must match the one build regenerates.
       # Prevents silent drift where unrelated adapter entries vanish or change

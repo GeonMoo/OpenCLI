@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError, EmptyResultError, TimeoutError, getErrorMessage } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError, EmptyResultError, TimeoutError, getErrorMessage } from '@geonmoo/opencli/errors';
 
 // Strategy: DOM_STATE / visible-ui. The homepage renders its socket-fed news
 // in #jin_flash_list; the HTTP fallback returned 502 during reconnaissance.

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getRegistry, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, AuthRequiredError, EmptyResultError } from '@jackwener/opencli/errors';
+import { getRegistry, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, AuthRequiredError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { __test__ } from './search.js';
 import './search.js';
 

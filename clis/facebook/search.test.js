@@ -7,8 +7,8 @@
  */
 import { describe, expect, it, vi } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import { __test__ } from './search.js';
 
 function runExtract(html, limit = 10, url = 'https://www.facebook.com/search/top?q=ai') {

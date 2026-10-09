@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { JSDOM } from 'jsdom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { extractCandidateStats, __test__ } from './stats.js';
 
 const fixture = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '__fixtures__/homepage.html'), 'utf8');

@@ -4,8 +4,8 @@ import {
   CommandExecutionError,
   EmptyResultError,
   TimeoutError,
-} from '@jackwener/opencli/errors';
-import { log } from '@jackwener/opencli/logger';
+} from '@geonmoo/opencli/errors';
+import { log } from '@geonmoo/opencli/logger';
 
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';

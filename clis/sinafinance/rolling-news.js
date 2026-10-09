@@ -5,8 +5,8 @@
  * Calling it directly avoids a browser launch and preserves the visible page
  * contract (财经 column, title, China-local timestamp, article URL).
  */
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 
 const ROLL_API = 'https://feed.mix.sina.com.cn/api/roll/get';
 

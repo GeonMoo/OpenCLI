@@ -1,6 +1,6 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { createPageMock } from '../test-utils.js';
 
 // Mock download + fs dependencies before importing the adapter.
@@ -8,8 +8,8 @@ const { mockHttpDownload, mockMkdirSync } = vi.hoisted(() => ({
   mockHttpDownload: vi.fn(),
   mockMkdirSync: vi.fn(),
 }));
-vi.mock('@jackwener/opencli/download', () => ({ httpDownload: mockHttpDownload }));
-vi.mock('@jackwener/opencli/download/progress', () => ({ formatBytes: (n) => `${n}B` }));
+vi.mock('@geonmoo/opencli/download', () => ({ httpDownload: mockHttpDownload }));
+vi.mock('@geonmoo/opencli/download/progress', () => ({ formatBytes: (n) => `${n}B` }));
 vi.mock('node:fs', () => ({ mkdirSync: mockMkdirSync }));
 
 await import('./download.js');

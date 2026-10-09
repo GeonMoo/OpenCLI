@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { getRegistry } from '@geonmoo/opencli/registry';
 
 await Promise.all([
   './action.js', './describe.js', './download.js', './generate.js', './history.js',

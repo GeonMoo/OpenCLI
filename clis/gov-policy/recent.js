@@ -10,7 +10,7 @@
  * by a JSDOM-against-frozen-fixture unit test (see gov-policy.test.js).
  */
 
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     classifyExtractorFailure,
     parseGovPolicyLimit,

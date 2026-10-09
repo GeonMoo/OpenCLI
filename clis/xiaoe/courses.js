@@ -23,8 +23,8 @@
 //          (column course `resource_type === 6` gets the `/v1/course/column/`
 //          path, everything else gets `/p/course/ecourse/`)
 
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 
 // Pure: derive the canonical course URL for a single purchase entry.
 // Returns '' when `entry` is missing the fields we'd need to construct

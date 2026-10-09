@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { EmptyResultError } from '@geonmoo/opencli/errors';
 import { NOTEBOOKLM_DOMAIN, NOTEBOOKLM_SITE } from './shared.js';
 import { findNotebooklmSourceRow, getNotebooklmPageState, getNotebooklmSourceFulltextViaRpc, listNotebooklmSourcesFromPage, listNotebooklmSourcesViaRpc, requireNotebooklmSession, } from './utils.js';
 cli({

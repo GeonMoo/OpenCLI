@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { BASE, assertRequiredFields, extractIdFromUrl, gotoAndWait, normalizeLimit, parseEventRef, parseHltvDate, parseNumber } from './utils.js';
 
 function buildEventStatsUrl(event) {

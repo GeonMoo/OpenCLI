@@ -1,4 +1,4 @@
-import { ArgumentError } from '@jackwener/opencli/errors';
+import { ArgumentError } from '@geonmoo/opencli/errors';
 
 // Company inventory and recruitment URLs from job-hunter/scripts/scrapers/manager.py.
 export const COMPANIES = [

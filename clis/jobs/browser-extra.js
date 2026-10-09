@@ -1,4 +1,4 @@
-import { CommandExecutionError, TimeoutError } from '@jackwener/opencli/errors';
+import { CommandExecutionError, TimeoutError } from '@geonmoo/opencli/errors';
 
 // Bilibili Strategy: INTERCEPT / internal-unstable. Observed rendered
 // a.bili-item-card has neither href nor job id; the scraper captures

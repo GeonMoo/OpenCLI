@@ -1,5 +1,5 @@
-import { AuthRequiredError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { AuthRequiredError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 cli({
     site: 'jd',
     name: 'cart',

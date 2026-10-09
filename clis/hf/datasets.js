@@ -1,10 +1,10 @@
 // hf datasets — list top Hugging Face datasets.
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import {
     ArgumentError,
     CommandExecutionError,
     EmptyResultError,
-} from '@jackwener/opencli/errors';
+} from '@geonmoo/opencli/errors';
 
 const SORT_OPTIONS = ['downloads', 'likes', 'trending', 'created_at', 'last_modified'];
 const SORT_ALIAS = { lastmodified: 'last_modified', createdat: 'created_at' };

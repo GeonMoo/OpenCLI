@@ -1,5 +1,5 @@
-import { ArgumentError, EmptyResultError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { ArgumentError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { buildTiebaSearchItems, normalizeTiebaLimit } from './utils.js';
 const MAX_SUPPORTED_PAGE = '1';
 /**

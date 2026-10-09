@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import { localBasename, normalizeRemotePath } from './utils.js';
 
 const mockHttpDownload = vi.hoisted(() => vi.fn());
-vi.mock('@jackwener/opencli/download', () => ({ httpDownload: mockHttpDownload }));
+vi.mock('@geonmoo/opencli/download', () => ({ httpDownload: mockHttpDownload }));
 
 import './console.js';
 import './download.js';

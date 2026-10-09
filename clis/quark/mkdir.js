@@ -1,5 +1,5 @@
-import { ArgumentError } from '@jackwener/opencli/errors';
-import { cli, Strategy } from '@jackwener/opencli/registry';
+import { ArgumentError } from '@geonmoo/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { DRIVE_API, apiPost, findFolder } from './utils.js';
 cli({
     site: 'quark',

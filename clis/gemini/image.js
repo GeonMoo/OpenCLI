@@ -1,8 +1,8 @@
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { saveBase64ToFile } from '@jackwener/opencli/utils';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { saveBase64ToFile } from '@geonmoo/opencli/utils';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { GEMINI_DOMAIN, exportGeminiImages, getGeminiVisibleImageUrls, sendGeminiMessage, startNewGeminiChat, waitForGeminiImages } from './utils.js';
 function extFromMime(mime) {
     if (mime.includes('png'))

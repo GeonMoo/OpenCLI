@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom';
 import { describe, expect, it, vi } from 'vitest';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import { parseNoteId, buildNoteUrl } from './note-helpers.js';
 import { NOTE_EXTRACT_JS } from './note.js';
 

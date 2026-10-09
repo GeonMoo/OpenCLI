@@ -7,6 +7,7 @@ on:
 
 jobs:
   dispatch:
+    if: github.repository == 'jackwener/OpenCLI'
     runs-on: ubuntu-latest
     steps:
       - name: Trigger opencli-website rebuild

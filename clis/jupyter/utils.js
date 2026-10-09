@@ -1,4 +1,4 @@
-import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@jackwener/opencli/errors';
+import { ArgumentError, AuthRequiredError, CommandExecutionError } from '@geonmoo/opencli/errors';
 
 export const JUPYTER_ORIGIN = 'http://139.196.153.143:9091';
 export const JUPYTER_LAB_URL = `${JUPYTER_ORIGIN}/lab`;

@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom';
 import { describe, expect, it, vi } from 'vitest';
-import { CommandExecutionError } from '@jackwener/opencli/errors';
-import { getRegistry } from '@jackwener/opencli/registry';
+import { CommandExecutionError } from '@geonmoo/opencli/errors';
+import { getRegistry } from '@geonmoo/opencli/registry';
 import './mute-word.js';
 import { createPageMock } from '../test-utils.js';
 import { createTwitterDomPage } from './test-dom-utils.js';

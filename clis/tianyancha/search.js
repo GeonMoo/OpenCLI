@@ -1,5 +1,5 @@
-import { cli, Strategy } from '@jackwener/opencli/registry';
-import { ArgumentError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
+import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
 import { requireBoundedInteger, requireSearchQuery } from '../_shared/search-adapter.js';
 import { BASE, BASE_INFO_KEY, calendarDate, cleanText, readState, resolveCompany, searchCompanies } from './utils.js';
 import { searchRelationPaths } from './relation.js';
