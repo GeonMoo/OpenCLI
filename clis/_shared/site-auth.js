@@ -1,4 +1,4 @@
-import { AuthRequiredError, TimeoutError, getErrorMessage } from '@jackwener/opencli/errors';
+import { ArgumentError, AuthRequiredError, TimeoutError, getErrorMessage } from '@jackwener/opencli/errors';
 import { cli, Strategy } from '@jackwener/opencli/registry';
 
 const DEFAULT_TIMEOUT_SECONDS = 300;
@@ -86,6 +86,10 @@ export function registerSiteAuthCommands(config) {
     ],
     columns: ['status', ...commandColumns(config)],
     func: async (page, kwargs) => {
+      const timeoutSeconds = Number(kwargs.timeout ?? DEFAULT_TIMEOUT_SECONDS);
+      if (!Number.isSafeInteger(timeoutSeconds) || timeoutSeconds < 1) {
+        throw new ArgumentError(`${config.site} login timeout must be a positive safe integer`);
+      }
       try {
         return { status: 'already_logged_in', ...await tryProbe(config, page, 'identity') };
       } catch (error) {
@@ -93,7 +97,6 @@ export function registerSiteAuthCommands(config) {
       }
 
       await page.goto(config.loginUrl);
-      const timeoutSeconds = Number(kwargs.timeout ?? DEFAULT_TIMEOUT_SECONDS);
       const deadline = Date.now() + timeoutSeconds * 1000;
       let lastAuthMessage = '';
 

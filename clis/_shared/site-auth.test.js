@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { AuthRequiredError, TimeoutError } from '@jackwener/opencli/errors';
+import { ArgumentError, AuthRequiredError, TimeoutError } from '@jackwener/opencli/errors';
 import { getRegistry } from '@jackwener/opencli/registry';
 import { registerSiteAuthCommands } from './site-auth.js';
 
@@ -92,7 +92,24 @@ describe('site auth command helper', () => {
     const cmd = getRegistry().get('auth-helper-timeout/login');
     const page = pageMock();
 
-    await expect(cmd.func(page, { timeout: 0 })).rejects.toBeInstanceOf(TimeoutError);
+    const clock = vi.spyOn(Date, 'now').mockReturnValueOnce(0).mockReturnValue(1000);
+    await expect(cmd.func(page, { timeout: 1 })).rejects.toBeInstanceOf(TimeoutError);
+    clock.mockRestore();
     expect(page.goto).toHaveBeenCalledWith('https://example.com/login');
+  });
+
+  it('rejects invalid timeouts before probing or navigating', async () => {
+    const verify = vi.fn(async () => ({ username: 'alice' }));
+    registerSiteAuthCommands({
+      site: 'auth-helper-invalid-timeout', domain: 'example.com',
+      loginUrl: 'https://example.com/login', verify,
+    });
+    const cmd = getRegistry().get('auth-helper-invalid-timeout/login');
+    const page = pageMock();
+    for (const timeout of [0, -1, 1.5, NaN, Infinity, 'invalid', Number.MAX_SAFE_INTEGER + 1]) {
+      await expect(cmd.func(page, { timeout })).rejects.toBeInstanceOf(ArgumentError);
+    }
+    expect(verify).not.toHaveBeenCalled();
+    expect(page.goto).not.toHaveBeenCalled();
   });
 });

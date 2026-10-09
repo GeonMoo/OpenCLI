@@ -24108,6 +24108,174 @@
   },
   {
     "site": "liepin",
+    "name": "chatlist",
+    "description": "猎聘求职端查看聊天列表",
+    "access": "read",
+    "domain": "liepin.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "page",
+        "type": "int",
+        "default": 1,
+        "required": false,
+        "help": "Page number (starts at 1; follows actual cursors)"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "Contacts per page (1-100)"
+      }
+    ],
+    "columns": [
+      "name",
+      "company",
+      "title",
+      "lastMessage",
+      "lastTime",
+      "unreadCount",
+      "uid",
+      "userId",
+      "userType"
+    ],
+    "type": "js",
+    "modulePath": "liepin/chatlist.js",
+    "sourceFile": "liepin/chatlist.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
+    "site": "liepin",
+    "name": "chatmsg",
+    "description": "猎聘求职端查看聊天消息历史（不标记已读）",
+    "access": "read",
+    "domain": "liepin.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "uid",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Contact uid from liepin chatlist (oppositeImId)"
+      },
+      {
+        "name": "page",
+        "type": "int",
+        "default": 1,
+        "required": false,
+        "help": "History page (1 is the newest page)"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "Messages per page (1-100)"
+      }
+    ],
+    "columns": [
+      "from",
+      "type",
+      "text",
+      "time",
+      "msgId"
+    ],
+    "type": "js",
+    "modulePath": "liepin/chatmsg.js",
+    "sourceFile": "liepin/chatmsg.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
+    "site": "liepin",
+    "name": "detail",
+    "description": "猎聘查看职位详情",
+    "access": "read",
+    "domain": "www.liepin.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "jobId",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Numeric search jobId or canonical Liepin detail URL"
+      },
+      {
+        "name": "type",
+        "type": "str",
+        "default": "job",
+        "required": false,
+        "help": "Detail URL type for numeric IDs (default: job)",
+        "choices": [
+          "job",
+          "a"
+        ]
+      }
+    ],
+    "columns": [
+      "name",
+      "salary",
+      "company",
+      "area",
+      "experience",
+      "degree",
+      "recruiter",
+      "recruiterActive",
+      "jobId",
+      "description",
+      "extras",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "liepin/detail.js",
+    "sourceFile": "liepin/detail.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
+    "site": "liepin",
+    "name": "login",
+    "description": "Open Liepin candidate login and wait until the browser session is authenticated",
+    "access": "write",
+    "domain": "liepin.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 300,
+        "required": false,
+        "help": "Maximum seconds to wait for the user to finish login"
+      }
+    ],
+    "columns": [
+      "status",
+      "logged_in",
+      "site",
+      "id",
+      "displayName",
+      "userType"
+    ],
+    "type": "js",
+    "modulePath": "liepin/auth.js",
+    "sourceFile": "liepin/auth.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "foreground"
+  },
+  {
+    "site": "liepin",
     "name": "search",
     "description": "猎聘搜索职位（不带关键词时返回为你推荐职位）",
     "access": "read",
@@ -24162,6 +24330,50 @@
     "navigateBefore": false,
     "siteSession": "persistent",
     "defaultWindowMode": "background"
+  },
+  {
+    "site": "liepin",
+    "name": "stats",
+    "description": "猎聘求职账号首页统计（简历被查看、投递、收藏、未读聊天）",
+    "access": "read",
+    "domain": "c.liepin.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [],
+    "columns": [
+      "resumeViews",
+      "applications",
+      "favorites",
+      "unreadChats"
+    ],
+    "type": "js",
+    "modulePath": "liepin/stats.js",
+    "sourceFile": "liepin/stats.js",
+    "navigateBefore": false,
+    "siteSession": "persistent",
+    "defaultWindowMode": "background"
+  },
+  {
+    "site": "liepin",
+    "name": "whoami",
+    "description": "Show the current logged-in Liepin candidate account",
+    "access": "read",
+    "domain": "liepin.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [],
+    "columns": [
+      "logged_in",
+      "site",
+      "id",
+      "displayName",
+      "userType"
+    ],
+    "type": "js",
+    "modulePath": "liepin/auth.js",
+    "sourceFile": "liepin/auth.js",
+    "navigateBefore": false,
+    "siteSession": "persistent"
   },
   {
     "site": "linkedin",
