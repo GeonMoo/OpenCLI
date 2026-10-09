@@ -5,7 +5,7 @@ import { getRegistry } from '@jackwener/opencli/registry';
 import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError } from '@jackwener/opencli/errors';
 import { extractRelations, SEARCH_COLUMNS } from './search.js';
 import { parseRelationPaths } from './relation.js';
-import { calendarDate, companyId } from './utils.js';
+import { calendarDate, companyId, resolveCompany } from './utils.js';
 import './auth.js';
 import './detail.js';
 
@@ -110,6 +110,28 @@ describe('Tianyancha adapter', () => {
       expect(Object.keys(rows[0])).toEqual(command('detail').columns);
       expect(rows[0]).toMatchObject({ creditCode: '91350900587527783P', registeredCapital: '456360.8365万人民币', establishmentDate: '2011-12-16' });
     }
+  });
+
+  it('skips non-company search cards before limiting, ranking and resolving companies', async () => {
+    const company = { ...fixture.company.data.companyList[0], contentType: 1 };
+    const cards = [{ id: null, name: null, contentType: 8 }, { id: null, name: null, contentType: 2 }];
+    const page = pageMock({ listRes: { state: 'ok', data: {
+      companyList: [cards[0], company, cards[1], { ...company, id: 3116644354, name: '长鑫存储技术有限公司' }],
+    } } });
+    const rows = await command('search').func(page, { query: '长鑫', limit: 2 });
+    expect(rows.map(({ rank, id }) => ({ rank, id }))).toEqual([
+      { rank: 1, id: '2343820668' }, { rank: 2, id: '3116644354' },
+    ]);
+    expect(await resolveCompany(page, '宁德时代')).toBe('2343820668');
+    page.dom.window.__NEXT_DATA__.props.pageProps.listRes.data.companyList = cards;
+    await expect(command('search').func(page, { query: '长鑫' })).rejects.toBeInstanceOf(EmptyResultError);
+  });
+
+  it('still rejects a company result with missing identity', async () => {
+    const page = pageMock({ listRes: { state: 'ok', data: {
+      companyList: [{ id: null, name: '长鑫', contentType: 1 }],
+    } } });
+    await expect(command('search').func(page, { query: '长鑫' })).rejects.toThrow('Search result identity is missing');
   });
 
   it('rejects invalid inputs before navigating and distinguishes empty from malformed data', async () => {

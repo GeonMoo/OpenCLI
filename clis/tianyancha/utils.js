@@ -66,8 +66,10 @@ export async function readState(page, url, key) {
 export async function searchCompanies(page, query) {
   const data = await readState(page, `${BASE}/search?key=${encodeURIComponent(query)}`, 'companySearch');
   if (!Array.isArray(data?.companyList)) throw new CommandExecutionError('Tianyancha companyList is missing');
-  if (!data.companyList.length) throw new EmptyResultError('tianyancha search', `No company matched ${query}`);
-  return data.companyList;
+  // companyList also contains non-company cards without company identities.
+  const companies = data.companyList.filter(item => item?.contentType == null || item.contentType === 1);
+  if (!companies.length) throw new EmptyResultError('tianyancha search', `No company matched ${query}`);
+  return companies;
 }
 
 export async function resolveCompany(page, input) {
