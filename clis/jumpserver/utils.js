@@ -2,35 +2,35 @@ import * as path from 'node:path';
 import { ArgumentError, AuthRequiredError, CommandExecutionError, EmptyResultError, TimeoutError } from '@geonmoo/opencli/errors';
 
 const JUMPSERVER_STATE_KEY = '__opencliJumpServer';
-const JUMPSERVER_FACADE_VERSION = 7;
+const JUMPSERVER_FACADE_VERSION = 13;
 export const DEFAULT_BASE_PATH = '/ui/#/workbench/assets';
 
-export function normalizeOrigin(value) {
+export function normalizeOrigin(value, label = 'OPENCLI_JUMPSERVER_URL') {
   const raw = String(value ?? '').trim();
   if (!raw) return null;
   let parsed;
   try {
     parsed = new URL(raw);
   } catch {
-    throw new ArgumentError('OPENCLI_JUMPSERVER_URL must be an absolute http(s) URL');
+    throw new ArgumentError(`${label} must be an absolute http(s) URL`);
   }
   if (!['http:', 'https:'].includes(parsed.protocol)) {
-    throw new ArgumentError('OPENCLI_JUMPSERVER_URL must use http or https');
+    throw new ArgumentError(`${label} must use http or https`);
   }
   return parsed.origin;
 }
 
-export async function resolveJumpServerOrigin(page) {
-  const envOrigin = normalizeOrigin(process.env.OPENCLI_JUMPSERVER_URL);
-  if (envOrigin) {
+export async function resolveJumpServerOrigin(page, url) {
+  const configuredOrigin = normalizeOrigin(url, '--url') || normalizeOrigin(process.env.OPENCLI_JUMPSERVER_URL);
+  if (configuredOrigin) {
     const state = await page.evaluate(() => ({
       origin: window.location.origin,
       protocol: window.location.protocol,
     })).catch(() => null);
-    if (!state || state.origin !== envOrigin || !/^https?:$/.test(String(state.protocol ?? ''))) {
-      await page.goto(`${envOrigin}${DEFAULT_BASE_PATH}`, { waitUntil: 'load', settleMs: 1000 });
+    if (!state || state.origin !== configuredOrigin || !/^https?:$/.test(String(state.protocol ?? ''))) {
+      await page.goto(`${configuredOrigin}${DEFAULT_BASE_PATH}`, { waitUntil: 'load', settleMs: 1000 });
     }
-    return envOrigin;
+    return configuredOrigin;
   }
 
   const state = await page.evaluate(() => ({
@@ -38,7 +38,7 @@ export async function resolveJumpServerOrigin(page) {
     protocol: window.location.protocol,
   })).catch(() => null);
   if (state && /^https?:$/.test(String(state.protocol ?? '')) && state.origin) return state.origin;
-  throw new ArgumentError('OPENCLI_JUMPSERVER_URL is required when the persistent browser tab is not already on JumpServer');
+  throw new ArgumentError('Provide --url <JumpServer URL> on login/connect or set OPENCLI_JUMPSERVER_URL when the persistent browser tab is not already on JumpServer');
 }
 
 export function normalizePositiveInteger(value, defaultValue, label, maxValue) {
@@ -207,7 +207,7 @@ export async function installJumpServerFacade(page, origin) {
         'X-Requested-With': 'XMLHttpRequest',
         ...(init.headers || {}),
       };
-      const csrf = parseCookie('csrftoken') || parseCookie('jms_csrftoken');
+      const csrf = parseCookie('jms_csrftoken') || parseCookie('csrftoken');
       if (csrf) headers['X-CSRFToken'] = csrf;
       const org = orgHeader();
       if (org) headers['X-JMS-ORG'] = org;
@@ -249,11 +249,14 @@ export async function installJumpServerFacade(page, origin) {
     const nonEmptyArray = (value) => (Array.isArray(value) && value.length > 0 ? value : null);
 
     const normalizeAsset = (raw) => {
-      const asset = { ...raw };
+      const metadata = raw.meta?.data || {};
+      const asset = { ...metadata, ...raw };
+      const platform = asset.platform;
       asset.id = asset.id || asset.key || asset.value;
       asset.name = asset.name || asset.title || asset.label || asset.hostname || asset.address || asset.ip || asset.id;
-      asset.address = asset.address || asset.ip || asset.hostname || null;
-      asset.platform = asset.platform?.name || asset.platform || asset.platform_name || null;
+      asset.address = asset.address || metadata.address || asset.ip || asset.hostname || null;
+      asset.platform = platform?.name || platform || asset.platform_name || null;
+      asset.platformType = asset.type?.value || asset.type || platform?.type || asset.platform_type || metadata.platform_type || null;
       asset.protocols = nonEmptyArray(asset.protocols) || nonEmptyArray(asset.permed_protocols) || [];
       asset.accounts = nonEmptyArray(asset.accounts) || nonEmptyArray(asset.permed_accounts) || [];
       return asset;
@@ -324,7 +327,8 @@ export async function installJumpServerFacade(page, origin) {
       terminal = null;
     };
 
-    const cleanup = (reason) => {
+    const cleanup = (reason, doneMarker) => {
+      if (doneMarker && terminal?.pendingCommand?.doneMarker !== doneMarker) return { cleaned: false, reason };
       cleanupFile();
       if (reason === 'terminal' || reason === 'exec-timeout' || reason === 'reconnect' || reason === 'close') {
         cleanupTerminal();
@@ -467,41 +471,37 @@ export async function installJumpServerFacade(page, origin) {
       };
     };
 
-    const sendCommand = async (command, startMarker, doneMarker, timeoutSeconds) => {
+    const startCommand = (command, startMarker, doneMarker) => {
       const current = requireTerminal();
       if (current.busy) throw Object.assign(new Error('JumpServer terminal is already running a command'), { opencliCode: 'TIMEOUT' });
       current.busy = true;
-      const shellLine = `printf '\\n${startMarker}\\n'\n${command}\n__opencli_status=$?\nprintf '\\n${doneMarker}:%s\\n' "$__opencli_status"\r`;
-      current.socket.send(JSON.stringify({ id: current.terminalId, type: 'TERMINAL_DATA', data: shellLine }));
-      const deadline = Date.now() + timeoutSeconds * 1000;
-      return new Promise((resolve, reject) => {
-        const timer = setInterval(() => {
-          if (!terminal || terminal !== current) {
-            clearInterval(timer);
-            reject(new Error('JumpServer terminal was replaced while command was running'));
-            return;
-          }
-          if (current.status === 'error' || current.status === 'closed') {
-            clearInterval(timer);
-            current.busy = false;
-            reject(new Error(current.lastError || 'JumpServer terminal closed'));
-            return;
-          }
-          const match = current.transcript.match(new RegExp(`${doneMarker}:(\\d+)`));
-          if (match) {
-            clearInterval(timer);
-            current.busy = false;
-            resolve({ ...snapshot(), exitCode: Number(match[1]), transcript: current.transcript });
-            return;
-          }
-          if (Date.now() > deadline) {
-            clearInterval(timer);
-            current.busy = false;
-            cleanup('exec-timeout');
-            reject(Object.assign(new Error('JumpServer command timed out'), { opencliCode: 'TIMEOUT' }));
-          }
-        }, 100);
-      });
+      const isWindows = String(current.asset.platformType || '').toLowerCase() === 'windows';
+      const shellLine = isWindows
+        ? `cmd /d /q /v:off /c "echo ${startMarker}&(${command})&call echo ${doneMarker}:^%errorlevel^%"\r`
+        : `printf '\\n${startMarker}\\n'\n${command}\n__opencli_status=$?\nprintf '\\n${doneMarker}:%s\\n' "$__opencli_status"\r`;
+      current.pendingCommand = { doneMarker, transcriptOffset: current.transcript.length };
+      try {
+        current.socket.send(JSON.stringify({ id: current.terminalId, type: 'TERMINAL_DATA', data: shellLine }));
+      } catch (error) {
+        current.busy = false;
+        current.pendingCommand = null;
+        throw error;
+      }
+    };
+
+    const pollCommand = (doneMarker) => {
+      if (terminal?.status === 'error' || terminal?.status === 'closed') {
+        throw new Error(terminal.lastError || 'JumpServer terminal closed');
+      }
+      const current = requireTerminal();
+      if (current.pendingCommand?.doneMarker !== doneMarker) {
+        throw new Error('JumpServer terminal was replaced while command was running');
+      }
+      const match = current.transcript.slice(current.pendingCommand.transcriptOffset).match(new RegExp(`${doneMarker}:(\\d+)`));
+      if (!match) return null;
+      current.busy = false;
+      current.pendingCommand = null;
+      return { ...snapshot(), exitCode: Number(match[1]), transcript: current.transcript };
     };
 
     const openFileSession = async (method) => {
@@ -588,7 +588,7 @@ export async function installJumpServerFacade(page, origin) {
           type: 'SFTP_DATA',
           cmd,
           data: JSON.stringify(data),
-          ...(options.raw ? { raw: options.raw } : {}),
+          ...(options.raw !== undefined ? { raw: options.raw } : {}),
         }));
       });
     };
@@ -657,7 +657,8 @@ export async function installJumpServerFacade(page, origin) {
       resolveAsset,
       createConnectToken,
       openTerminal,
-      sendCommand,
+      startCommand,
+      pollCommand,
       snapshot,
       cleanupTerminal,
       cleanupFile,
@@ -672,8 +673,8 @@ export async function installJumpServerFacade(page, origin) {
   return result;
 }
 
-export async function withJumpServer(page) {
-  const origin = await resolveJumpServerOrigin(page);
+export async function withJumpServer(page, url) {
+  const origin = await resolveJumpServerOrigin(page, url);
   await assertJumpServerSession(page, origin);
   await installJumpServerFacade(page, origin);
   return origin;

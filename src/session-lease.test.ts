@@ -131,6 +131,40 @@ describe('SessionLeaseRegistry', () => {
     expect(retry.holder.runId).toBe('run_222_2_b');
   });
 
+  it('reclaims a dead CLI holder immediately when no browser request remains pending', () => {
+    const reg = new SessionLeaseRegistry(SESSION_LEASE_TTL_MS, (pid) => pid !== 111);
+    reg.touch(KEY, { runId: 'run_111_1_a', command: 'jumpserver/connect', now: T0 });
+    expect(reg.list(T0 + 1)).toEqual([]);
+    const retry = reg.touch(KEY, {
+      runId: 'run_222_2_b', command: 'jumpserver/connect', now: T0 + 1, hasPendingWork: () => false,
+    });
+    expect(retry.granted).toBe(true);
+    expect(reg.get(KEY, T0 + 2)?.pid).toBe(222);
+  });
+
+  it('keeps a dead CLI holder busy while its browser request remains pending', () => {
+    const reg = new SessionLeaseRegistry(SESSION_LEASE_TTL_MS, () => false);
+    reg.touch(KEY, { runId: 'run_111_1_a', command: 'jumpserver/connect', now: T0 });
+    const now = T0 + SESSION_LEASE_TTL_MS + 10_000;
+    expect(reg.list(now, () => true)).toHaveLength(1);
+    expect(reg.touch(KEY, {
+      runId: 'run_222_2_b', command: 'jumpserver/connect', now, hasPendingWork: () => true,
+    }).granted).toBe(false);
+    reg.heartbeat(KEY, 'run_111_1_a', now);
+    expect(reg.touch(KEY, {
+      runId: 'run_222_2_b', command: 'jumpserver/connect', now: now + 1, hasPendingWork: () => false,
+    }).granted).toBe(true);
+  });
+
+  it('preserves a live CLI holder and falls back to TTL when no pid can be recovered', () => {
+    const reg = new SessionLeaseRegistry(SESSION_LEASE_TTL_MS, () => true);
+    reg.touch(KEY, { runId: 'run_111_1_a', command: 'jumpserver/connect', now: T0 });
+    expect(reg.touch(KEY, { runId: 'run_222_2_b', command: 'jumpserver/connect', now: T0 + 1 }).granted).toBe(false);
+    reg.releaseByRunId('run_111_1_a');
+    reg.touch(KEY, { runId: 'unknown-pid', command: 'jumpserver/connect', now: T0 });
+    expect(reg.touch(KEY, { runId: 'run_222_2_b', command: 'jumpserver/connect', now: T0 + 1 }).granted).toBe(false);
+  });
+
   it('releases by runId alone so a retry succeeds immediately on normal completion', () => {
     const reg = new SessionLeaseRegistry();
     reg.touch(KEY, { runId: 'run_111_1_a', command: 'chatgpt ask', now: T0 });
@@ -243,6 +277,7 @@ describe('buildSessionBusyFailure', () => {
     expect(failure.message).toContain('42s');
     expect(failure.errorHint).toContain('kill 111');
     expect(failure.errorHint).toContain('Read-only commands are not blocked');
+    expect(failure.errorHint).toContain('pending browser request');
   });
 
   it('degrades gracefully when the pid is unknown', () => {

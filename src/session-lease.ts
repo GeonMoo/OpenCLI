@@ -10,8 +10,8 @@
  *
  * This registry grants ONE logical write lease per (contextId, surface,
  * session) that spans the whole CLI command run. A second concurrent write
- * fails fast, and a lease whose holder died (kill -9, crash) self-expires
- * after TTL of inactivity so a retry succeeds within a bounded time. Each exec
+ * fails fast, and a lease whose holder died (kill -9, crash) is reclaimed once
+ * its pending work settles, with an inactivity TTL fallback. Each exec
  * that flows through refreshes the lease, and a holder whose single exec
  * outlives the TTL (e.g. a slow navigate) is still protected while that exec
  * is in flight (see `hasPendingWork`), so a live long-running holder keeps the
@@ -96,7 +96,16 @@ export interface LeaseTouchResult {
 export class SessionLeaseRegistry {
   private readonly leases = new Map<string, SessionLeaseHolder>();
 
-  constructor(private readonly ttlMs: number = SESSION_LEASE_TTL_MS) {}
+  constructor(
+    private readonly ttlMs: number = SESSION_LEASE_TTL_MS,
+    private readonly isProcessAlive: (pid: number) => boolean = () => true,
+  ) {}
+
+  private isAlive(holder: SessionLeaseHolder, now: number, hasPendingWork?: (runId: string) => boolean): boolean {
+    // A browser request may still run after its CLI exits; never steal that lease.
+    if (hasPendingWork?.(holder.runId) === true) return true;
+    return now - holder.lastSeenAt <= this.ttlMs && (holder.pid === null || this.isProcessAlive(holder.pid));
+  }
 
   /**
    * Acquire or refresh the lease for `key`.
@@ -107,8 +116,8 @@ export class SessionLeaseRegistry {
    * - A different runId while the holder is still alive: `granted: false`, and
    *   `holder` describes who to wait for or kill.
    *
-   * Liveness is TTL-based, but a TTL-stale holder with a command still in
-   * flight is NOT dead — a single exec can legitimately outlast the TTL (e.g.
+   * A confirmed dead process is reclaimed without waiting for the TTL, but a
+   * holder with a command still in flight is NOT dead — an exec can outlast the TTL (e.g.
    * a slow navigate produces no heartbeat until it settles). `hasPendingWork`
    * lets the daemon report that, keeping the registry pure.
    */
@@ -117,9 +126,7 @@ export class SessionLeaseRegistry {
     input: { runId: string; command: string; now: number; hasPendingWork?: (runId: string) => boolean },
   ): LeaseTouchResult {
     const current = this.leases.get(key);
-    const alive = current !== undefined && (
-      input.now - current.lastSeenAt <= this.ttlMs || input.hasPendingWork?.(current.runId) === true
-    );
+    const alive = current !== undefined && this.isAlive(current, input.now, input.hasPendingWork);
     if (current !== undefined && alive && current.runId !== input.runId) {
       return { granted: false, holder: current };
     }
@@ -163,7 +170,7 @@ export class SessionLeaseRegistry {
   get(key: string, now: number): SessionLeaseHolder | undefined {
     const current = this.leases.get(key);
     if (current === undefined) return undefined;
-    if (now - current.lastSeenAt > this.ttlMs) {
+    if (!this.isAlive(current, now)) {
       this.leases.delete(key);
       return undefined;
     }
@@ -181,7 +188,7 @@ export class SessionLeaseRegistry {
   list(now: number, hasPendingWork?: (runId: string) => boolean): Array<{ key: string } & SessionLeaseHolder> {
     const out: Array<{ key: string } & SessionLeaseHolder> = [];
     for (const [key, holder] of this.leases) {
-      const alive = now - holder.lastSeenAt <= this.ttlMs || hasPendingWork?.(holder.runId) === true;
+      const alive = this.isAlive(holder, now, hasPendingWork);
       if (alive) out.push({ key, ...holder });
     }
     return out;
@@ -209,7 +216,7 @@ export function buildSessionBusyFailure(
   return {
     message: `Session "${session}" is busy: ${who} has been driving it for ${heldSeconds}s.`,
     errorCode: SESSION_BUSY_CODE,
-    errorHint: `${stop} Read-only commands are not blocked.`,
+    errorHint: `${stop} If the process has exited, wait for its pending browser request to settle; the CLI may have exited before the browser finished. Read-only commands are not blocked.`,
     status: 409,
   };
 }

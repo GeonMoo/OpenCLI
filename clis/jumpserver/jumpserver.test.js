@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import * as path from 'node:path';
 import {
   ArgumentError,
   AuthRequiredError,
@@ -7,9 +10,6 @@ import {
   TimeoutError,
 } from '@geonmoo/opencli/errors';
 import { getRegistry, Strategy } from '@geonmoo/opencli/registry';
-
-const mockHttpDownload = vi.hoisted(() => vi.fn());
-vi.mock('@geonmoo/opencli/download', () => ({ httpDownload: mockHttpDownload }));
 
 import './connect.js';
 import './exec.js';
@@ -21,8 +21,10 @@ import {
   localBasename,
   normalizeRemoteDirectory,
   normalizeRemoteFile,
+  remoteJoin,
   safeDownloadPath,
   installJumpServerFacade,
+  resolveJumpServerOrigin,
   tailTranscript,
 } from './utils.js';
 
@@ -42,7 +44,8 @@ const facadeOk = { ok: true, reused: true };
 
 beforeEach(() => {
   vi.restoreAllMocks();
-  mockHttpDownload.mockReset();
+  vi.unstubAllEnvs();
+  vi.stubEnv('OPENCLI_JUMPSERVER_URL', '');
 });
 
 function pageWithEvaluate(...results) {
@@ -76,6 +79,10 @@ describe('jumpserver registry metadata', () => {
         navigateBefore: false,
       });
     }
+  });
+
+  it('exposes login as an alias for connect', () => {
+    expect(getRegistry().get('jumpserver/connect')?.aliases).toContain('login');
   });
 
   it('makes exec JSON by default while accepting the exact --json compatibility flag', () => {
@@ -117,6 +124,21 @@ describe('jumpserver registry metadata', () => {
 });
 
 describe('jumpserver connect', () => {
+  it('opens the supplied URL from a blank tab before authenticating and connecting', async () => {
+    const command = getRegistry().get('jumpserver/connect');
+    expect(command.args).toContainEqual(expect.objectContaining({ name: 'url', type: 'string' }));
+    const page = pageWithEvaluate(
+      { origin: 'null', protocol: 'about:' }, profileOk, facadeOk,
+      { ok: true, snapshot: connectedAsset },
+    );
+    page.goto = vi.fn().mockResolvedValue(undefined);
+
+    await expect(command.func(page, { asset: connectedAsset.assetName, url: 'https://jumpserver.example.com/luna/' }))
+      .resolves.toEqual([connectedAsset]);
+    expect(page.goto).toHaveBeenCalledWith('https://jumpserver.example.com/ui/#/workbench/assets', expect.any(Object));
+    expect(page.goto.mock.invocationCallOrder[0]).toBeLessThan(page.evaluate.mock.invocationCallOrder[1]);
+  });
+
   it('connects the exact asset, replaces stale sockets, and returns sanitized identity', async () => {
     const command = getRegistry().get('jumpserver/connect');
     const page = jumpServerPage(
@@ -154,10 +176,48 @@ describe('jumpserver connect', () => {
   });
 });
 
+describe('jumpserver origin selection', () => {
+  it('prefers --url over the environment and navigates away from another origin', async () => {
+    vi.stubEnv('OPENCLI_JUMPSERVER_URL', 'invalid-env-url');
+    const page = pageWithEvaluate(originState);
+    page.goto = vi.fn().mockResolvedValue(undefined);
+    await expect(resolveJumpServerOrigin(page, 'http://192.168.0.68:8080/luna/'))
+      .resolves.toBe('http://192.168.0.68:8080');
+    expect(page.goto).toHaveBeenCalledWith('http://192.168.0.68:8080/ui/#/workbench/assets', expect.any(Object));
+  });
+
+  it('opens the environment URL when no --url is supplied', async () => {
+    vi.stubEnv('OPENCLI_JUMPSERVER_URL', originState.origin);
+    const page = pageWithEvaluate({ origin: 'null', protocol: 'about:' });
+    page.goto = vi.fn().mockResolvedValue(undefined);
+    await expect(resolveJumpServerOrigin(page)).resolves.toBe(originState.origin);
+    expect(page.goto).toHaveBeenCalledOnce();
+  });
+
+  it.each([undefined, originState.origin])('keeps the existing tab and terminal without navigation (url: %s)', async (url) => {
+    const page = pageWithEvaluate(originState);
+    page.goto = vi.fn();
+    await expect(resolveJumpServerOrigin(page, url)).resolves.toBe(originState.origin);
+    expect(page.goto).not.toHaveBeenCalled();
+  });
+
+  it.each(['192.168.0.68:8080', 'file:///C:/test', 'javascript:alert(1)'])('rejects invalid --url before browser navigation: %s', async (url) => {
+    const page = pageWithEvaluate();
+    await expect(resolveJumpServerOrigin(page, url)).rejects.toThrow(/--url must/);
+    expect(page.evaluate).not.toHaveBeenCalled();
+  });
+
+  it('explains how to supply the URL when no configuration or usable tab exists', async () => {
+    const page = pageWithEvaluate({ origin: 'null', protocol: 'about:' });
+    await expect(resolveJumpServerOrigin(page)).rejects.toThrow(/Provide --url .*OPENCLI_JUMPSERVER_URL/);
+  });
+});
+
 describe('jumpserver exec', () => {
   it('runs a shell command through the retained terminal and returns the exact JSON schema', async () => {
     const command = getRegistry().get('jumpserver/exec');
     const page = jumpServerPage(
+      { ok: true },
       {
         ok: true,
         commandResult: {
@@ -186,7 +246,7 @@ describe('jumpserver exec', () => {
 
   it('typed-fails non-zero exits with bounded command output', async () => {
     const command = getRegistry().get('jumpserver/exec');
-    const page = jumpServerPage({
+    const page = jumpServerPage({ ok: true }, {
       ok: true,
       commandResult: {
         exitCode: 7,
@@ -198,15 +258,41 @@ describe('jumpserver exec', () => {
     await expect(command.func(page, { command: 'false', wait: 5 })).rejects.toBeInstanceOf(CommandExecutionError);
   });
 
-  it('cleans up the page lease and typed-fails on timeout', async () => {
+  it('enforces the CLI deadline for an unfinished interactive command and closes its terminal', async () => {
     const command = getRegistry().get('jumpserver/exec');
     const page = jumpServerPage(
-      { ok: false, code: 'TIMEOUT', message: 'command timed out' },
+      { ok: true },
+      { ok: true, commandResult: null },
+      { ok: true, commandResult: null },
       { ok: true, cleaned: true },
     );
 
-    await expect(command.func(page, { command: 'sleep 60', wait: 1 })).rejects.toBeInstanceOf(TimeoutError);
-    expect(installJumpServerFacade.toString()).toContain("cleanup('exec-timeout')");
+    let now = 0;
+    vi.spyOn(Date, 'now').mockImplementation(() => now);
+    page.sleep.mockImplementation(async () => { now = 1000; });
+    await expect(command.func(page, { command: 'pwsh', wait: 1 })).rejects.toBeInstanceOf(TimeoutError);
+    expect(page.sleep).toHaveBeenCalledOnce();
+    expect(page.evaluate).toHaveBeenLastCalledWith(expect.any(Function), '__opencliJumpServer', expect.stringContaining('__OPENCLI_JUMPSERVER_DONE_'));
+  });
+
+  it('accepts a completion marker on the final deadline poll without closing the terminal', async () => {
+    let now = 0;
+    vi.spyOn(Date, 'now').mockImplementation(() => now);
+    const command = getRegistry().get('jumpserver/exec');
+    const page = jumpServerPage(
+      { ok: true }, { ok: true, commandResult: null },
+      { ok: true, commandResult: { ...connectedAsset, exitCode: 0, transcript: 'done' } },
+    );
+    page.sleep.mockImplementation(async () => { now = 1000; });
+    await expect(command.func(page, { command: 'true', wait: 1 })).resolves.toMatchObject([{ exitCode: 0, output: 'done' }]);
+    expect(page.evaluate.mock.calls.at(-1)[0].toString()).toContain('pollCommand');
+  });
+
+  it('closes its unfinished terminal after a polling transport failure without resending the command', async () => {
+    const failure = new Error('connection dropped');
+    const page = jumpServerPage({ ok: true }, failure, { ok: true, cleaned: true });
+    await expect(getRegistry().get('jumpserver/exec').func(page, { command: 'pwsh', wait: 1 })).rejects.toBe(failure);
+    expect(page.evaluate).toHaveBeenLastCalledWith(expect.any(Function), '__opencliJumpServer', expect.stringContaining('__OPENCLI_JUMPSERVER_DONE_'));
   });
 
   it('rejects empty commands and invalid wait values before touching the browser', async () => {
@@ -251,7 +337,7 @@ describe('jumpserver view', () => {
 });
 
 describe('jumpserver upload', () => {
-  it('uploads one local file through a live Web SFTP session and returns the receipt', async () => {
+  it.each(['C:\\tmp\\1.txt', '1.txt', path.join('upload files', '1.txt')])('resolves the local path %s before browser upload and returns the receipt', async (localFile) => {
     const command = getRegistry().get('jumpserver/upload');
     const page = {
       ...jumpServerPage(
@@ -262,14 +348,13 @@ describe('jumpserver upload', () => {
       uploadFiles: vi.fn().mockResolvedValue({ uploaded: true, files: 1, matches_n: 1, file_names: ['1.txt'] }),
     };
 
-    await expect(command.func(page, { file: 'C:\\tmp\\1.txt', 'remote-dir': '/tmp', timeout: 30 })).resolves.toEqual([{
+    await expect(command.func(page, { file: localFile, 'remote-dir': '/tmp', timeout: 30 })).resolves.toEqual([{
       remotePath: '/tmp/1.txt',
       fileName: '1.txt',
       size: 7,
       status: 'uploaded',
     }]);
-    expect(page.uploadFiles).toHaveBeenCalledWith(expect.stringMatching(/jumpserver-upload/i), ['C:\\tmp\\1.txt']);
-    expect(installJumpServerFacade.toString()).toContain('finally {\n        cleanupFile();');
+    expect(page.uploadFiles).toHaveBeenCalledWith(expect.stringMatching(/jumpserver-upload/i), [path.resolve(localFile)]);
   });
 
   it('cleans up file session state when upload times out after browser file selection', async () => {
@@ -301,45 +386,32 @@ describe('jumpserver upload', () => {
 });
 
 describe('jumpserver download', () => {
-  it('downloads one remote file through the Web SFTP connector with browser cookies', async () => {
+  it('downloads Web SFTP chunks without changing their bytes', async () => {
     const command = getRegistry().get('jumpserver/download');
-    mockHttpDownload.mockResolvedValue({ success: true, size: 7, sha256: 'abc123' });
-    const page = {
-      ...jumpServerPage(
-        {
-          ok: true,
-          download: {
-            requestId: 'req-1',
-            remotePath: '/tmp/1.txt',
-            fileName: '1.txt',
-            size: 7,
-            mimeType: 'text/plain',
-            url: 'https://jumpserver.example.com/koko/elfinder/connector/sftp-1/?cmd=file&target=t1',
-          },
-        },
-        { ok: true, cleaned: true },
-      ),
-      getCookies: vi.fn().mockResolvedValue([{ name: 'jms_sessionid', value: 'session' }]),
-    };
-
-    await expect(command.func(page, { 'remote-file': '/tmp/1.txt', 'local-dir': '.', timeout: 30 })).resolves.toEqual([{
-      remotePath: '/tmp/1.txt',
-      fileName: '1.txt',
-      size: 7,
-      mimeType: 'text/plain',
-      status: 'downloaded',
-      localPath: expect.stringMatching(/[\\/]1\.txt$/),
-    }]);
-    expect(mockHttpDownload).toHaveBeenCalledWith(
-      'https://jumpserver.example.com/koko/elfinder/connector/sftp-1/?cmd=file&target=t1',
-      expect.stringMatching(/[\\/]1\.txt$/),
-      expect.objectContaining({
-        cookies: 'jms_sessionid=session',
-        headers: expect.objectContaining({ 'JMS-KoKo-Request-ID': 'req-1' }),
-        timeout: 30000,
-      }),
+    const chunks = [Buffer.from([0, 1, 2, 255]), Buffer.from('opencli')];
+    const expected = Buffer.concat(chunks);
+    const localDir = await mkdtemp(path.join(tmpdir(), 'opencli-jumpserver-'));
+    const page = jumpServerPage(
+      { ok: true, download: { size: expected.length, mimeType: 'application/octet-stream', chunks: chunks.length } },
+      ...chunks.map((chunk) => chunk.toString('base64')),
+      { ok: true, cleaned: true },
     );
-    expect(page.evaluate).toHaveBeenLastCalledWith(expect.any(Function), '__opencliJumpServer');
+
+    try {
+      const result = await command.func(page, { 'remote-file': '/tmp/1.bin', 'local-dir': localDir, timeout: 30 });
+      expect(result).toEqual([{
+        remotePath: '/tmp/1.bin',
+        fileName: '1.bin',
+        size: expected.length,
+        mimeType: 'application/octet-stream',
+        status: 'downloaded',
+        localPath: path.join(localDir, '1.bin'),
+      }]);
+      await expect(readFile(path.join(localDir, '1.bin'))).resolves.toEqual(expected);
+      expect(page.evaluate).toHaveBeenLastCalledWith(expect.any(Function), '__opencliJumpServer');
+    } finally {
+      await rm(localDir, { recursive: true, force: true });
+    }
   });
 
   it('typed-fails missing remote files and rejects unsafe local output paths', async () => {
@@ -363,10 +435,221 @@ describe('jumpserver helper behavior', () => {
     expect(source).toContain('connection-token response did not include a token id or value');
     expect(source).toContain('const detail = await requestJson');
     expect(source).toContain("window.__name = window.__name || ((fn) => fn)");
-    expect(source).toContain("parseCookie('csrftoken') || parseCookie('jms_csrftoken')");
+    expect(source).toContain("parseCookie('jms_csrftoken') || parseCookie('csrftoken')");
     expect(source).toContain('/koko/ws/terminal/?token=${sessionToken}');
     expect(source).toContain('if (!state.terminalId)');
     expect(source).toContain('reject(new Error(state.lastError))');
+  });
+
+  it('uses the asset platform type to execute commands in Linux and Windows cmd terminals', async () => {
+    const previousWindow = globalThis.window;
+    const previousDocument = globalThis.document;
+    const previousWebSocket = globalThis.WebSocket;
+    const encoder = new TextEncoder();
+    const scenarios = [
+      { platformType: 'linux', command: 'true', exitCode: 0, output: 'linux-ok' },
+      { platformType: 'windows', command: 'ver', exitCode: 0, output: 'windows-ok' },
+      { platformType: 'windows', command: 'cmd /c exit /b 7', exitCode: 7, output: 'windows-failed' },
+      { platformType: 'windows', command: 'echo "a!b"', exitCode: 0, output: '"a!b"' },
+      { platformType: 'windows', command: 'if not exist C:\\Windows echo missing', exitCode: 0, output: '' },
+    ];
+
+    try {
+      for (const scenario of scenarios) {
+        const sent = [];
+        class FakeWebSocket {
+          static OPEN = 1;
+          static CLOSING = 2;
+          static CLOSED = 3;
+          readyState = FakeWebSocket.OPEN;
+          listeners = new Map();
+
+          constructor() {
+            queueMicrotask(() => this.emit('message', { data: JSON.stringify({ type: 'CONNECT', id: 'term-1' }) }));
+          }
+
+          addEventListener(type, listener) {
+            const listeners = this.listeners.get(type) || [];
+            listeners.push(listener);
+            this.listeners.set(type, listeners);
+          }
+
+          send(raw) {
+            const message = JSON.parse(raw);
+            sent.push(message);
+            if (message.type !== 'TERMINAL_DATA') return;
+            const transcript = scenario.platformType === 'windows'
+              ? `C:\\Users\\opencli>${message.data}\r\n__START__\r\n${scenario.output}\r\n__DONE__:${scenario.exitCode}\r\nC:\\Users\\opencli>`
+              : `${message.data}\n__START__\n${scenario.output}\n__DONE__:${scenario.exitCode}\n`;
+            queueMicrotask(() => this.emit('message', { data: encoder.encode(transcript).buffer }));
+          }
+
+          emit(type, event) {
+            for (const listener of this.listeners.get(type) || []) listener(event);
+          }
+
+          close() {
+            this.readyState = FakeWebSocket.CLOSED;
+          }
+        }
+
+        globalThis.window = {
+          location: { origin: 'https://jumpserver.example.com', protocol: 'https:', host: 'jumpserver.example.com' },
+          localStorage: { getItem: () => '' },
+          sessionStorage: { getItem: () => '' },
+        };
+        globalThis.document = { cookie: '' };
+        globalThis.WebSocket = FakeWebSocket;
+        const page = { evaluate: vi.fn(async (input, ...args) => (typeof input === 'string' ? undefined : input(...args))) };
+
+        await installJumpServerFacade(page, globalThis.window.location.origin);
+        const api = globalThis.window.__opencliJumpServer;
+        await api.openTerminal(
+          { id: 'asset-1', name: 'host', address: '10.0.0.8', platformType: scenario.platformType },
+          { id: 'account-1', alias: 'opencli' },
+          { id: 'token-1' },
+        );
+        const failedSend = vi.spyOn(FakeWebSocket.prototype, 'send').mockImplementationOnce(() => { throw new Error('send failed'); });
+        expect(() => api.startCommand(scenario.command, '__START__', '__FAILED__')).toThrow('send failed');
+        failedSend.mockRestore();
+        const browserTimer = vi.spyOn(globalThis, 'setInterval').mockImplementation(() => { throw new Error('background timer must not be used'); });
+        try {
+          expect(api.startCommand(scenario.command, '__START__', '__DONE__')).toBeUndefined();
+          expect(api.pollCommand('__DONE__')).toBeNull();
+          expect(() => api.pollCommand('__OLD__')).toThrow('replaced');
+          expect(api.cleanup('exec-timeout', '__OLD__')).toMatchObject({ cleaned: false });
+          expect(api.snapshot().status).toBe('connected');
+          await Promise.resolve();
+        } finally {
+          browserTimer.mockRestore();
+        }
+        const result = api.pollCommand('__DONE__');
+        const terminalData = sent.find((message) => message.type === 'TERMINAL_DATA')?.data;
+
+        expect(result.exitCode).toBe(scenario.exitCode);
+        expect(cleanCommandOutput(result.transcript, '__START__', '__DONE__')).toBe(scenario.output);
+        if (scenario.platformType === 'windows') {
+          expect(terminalData).toMatch(/^cmd \/d \/q \/v:off \/c "/);
+          expect(terminalData).toContain(`&(${scenario.command})`);
+          expect(terminalData).toContain(')&call echo __DONE__:^%errorlevel^%"');
+          expect(terminalData).not.toContain("printf '");
+        } else {
+          expect(terminalData).toContain('__opencli_status=$?');
+          expect(terminalData).toContain("printf '\\n__DONE__:%s\\n'");
+        }
+      }
+    } finally {
+      globalThis.window = previousWindow;
+      globalThis.document = previousDocument;
+      globalThis.WebSocket = previousWebSocket;
+    }
+  });
+
+  it('sends empty and binary uploads as explicit Web SFTP raw payloads', async () => {
+    const previousWindow = globalThis.window;
+    const previousDocument = globalThis.document;
+    const previousFetch = globalThis.fetch;
+    const previousWebSocket = globalThis.WebSocket;
+    const sockets = [];
+
+    class FakeWebSocket {
+      static OPEN = 1;
+      static CLOSING = 2;
+      static CLOSED = 3;
+      readyState = FakeWebSocket.OPEN;
+      listeners = new Map();
+      sent = [];
+
+      constructor(url) {
+        this.kind = String(url).includes('/ws/sftp/') ? 'sftp' : 'terminal';
+        sockets.push(this);
+        queueMicrotask(() => {
+          if (this.kind === 'sftp') this.emit('open', {});
+          this.emit('message', { data: JSON.stringify({ type: 'CONNECT', id: `${this.kind}-1` }) });
+        });
+      }
+
+      addEventListener(type, listener) {
+        const listeners = this.listeners.get(type) || [];
+        listeners.push(listener);
+        this.listeners.set(type, listeners);
+      }
+
+      send(raw) {
+        const message = JSON.parse(raw);
+        this.sent.push(message);
+        if (this.kind === 'sftp' && message.type === 'SFTP_DATA') {
+          queueMicrotask(() => this.emit('message', {
+            data: JSON.stringify({ id: message.id, type: 'SFTP_DATA', data: 'ok' }),
+          }));
+        }
+      }
+
+      emit(type, event) {
+        for (const listener of this.listeners.get(type) || []) listener(event);
+      }
+
+      close() {
+        this.readyState = FakeWebSocket.CLOSED;
+      }
+    }
+
+    const fakeWindow = {
+      location: { origin: 'https://jumpserver.example.com', protocol: 'https:', host: 'jumpserver.example.com' },
+      localStorage: { getItem: () => '' },
+      sessionStorage: { getItem: () => '' },
+    };
+    const fetchMock = vi.fn(async (url) => ({
+      ok: true,
+      status: 201,
+      url: String(url),
+      text: async () => JSON.stringify({ id: 'sftp-token' }),
+    }));
+
+    globalThis.window = fakeWindow;
+    globalThis.document = { cookie: '' };
+    globalThis.fetch = fetchMock;
+    globalThis.WebSocket = FakeWebSocket;
+    try {
+      const page = { evaluate: vi.fn(async (input, ...args) => (typeof input === 'string' ? undefined : input(...args))) };
+      await installJumpServerFacade(page, fakeWindow.location.origin);
+      const api = fakeWindow.__opencliJumpServer;
+      await api.openTerminal(
+        { id: 'asset-1', name: 'host', address: '192.168.0.68', platformType: 'windows' },
+        { id: 'account-1', alias: 'mozhe' },
+        { id: 'terminal-token' },
+      );
+
+      for (const [name, bytes] of [['empty.bin', Buffer.alloc(0)], ['binary.bin', Buffer.from([0, 255, 65])]]) {
+        await expect(api.uploadFile('/C:/Users/mozhe/Downloads', {
+          name,
+          size: bytes.length,
+          type: 'application/octet-stream',
+          arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+        })).resolves.toMatchObject({ fileName: name, size: bytes.length });
+      }
+
+      const uploads = sockets
+        .flatMap((socket) => socket.sent)
+        .filter((message) => message.type === 'SFTP_DATA' && message.cmd === 'upload');
+      expect(uploads).toHaveLength(2);
+      expect(uploads.map((message) => ({ raw: message.raw, data: JSON.parse(message.data) }))).toEqual([
+        {
+          raw: '',
+          data: { offset: 0, size: 0, path: '/C:/Users/mozhe/Downloads/empty.bin', chunk: false },
+        },
+        {
+          raw: 'AP9B',
+          data: { offset: 0, size: 3, path: '/C:/Users/mozhe/Downloads/binary.bin', chunk: false },
+        },
+      ]);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      globalThis.window = previousWindow;
+      globalThis.document = previousDocument;
+      globalThis.fetch = previousFetch;
+      globalThis.WebSocket = previousWebSocket;
+    }
   });
 
   it('preserves detail permed protocols and accounts when the tree row has empty arrays', async () => {
@@ -382,17 +665,19 @@ describe('jumpserver helper behavior', () => {
       localStorage: { getItem: vi.fn(() => '') },
       sessionStorage: { getItem: vi.fn(() => '') },
     };
-    const fakeDocument = { cookie: '' };
+    const fakeDocument = { cookie: 'csrftoken=generic; jms_csrftoken=jumpserver' };
     const treeRow = {
       id: 'asset-1',
       name: 'opencli-linux',
-      address: '10.0.0.8',
+      title: 'opencli-linux\n192.168.0.68',
+      meta: { data: { address: '192.168.0.68', platform_type: 'windows' } },
       protocols: [],
       accounts: [],
     };
     const detailRow = {
       id: 'asset-1',
       name: 'opencli-linux',
+      type: { label: 'Windows', value: 'windows' },
       permed_protocols: [{ name: 'ssh', port: 22 }],
       permed_accounts: [{ id: 'account-1', name: 'opencli', username: 'opencli' }],
     };
@@ -417,13 +702,15 @@ describe('jumpserver helper behavior', () => {
     globalThis.fetch = fetchMock;
     try {
       await installJumpServerFacade(page, fakeWindow.location.origin);
-      const resolved = await fakeWindow.__opencliJumpServer.resolveAsset('opencli-linux', null);
+      const resolved = await fakeWindow.__opencliJumpServer.resolveAsset('192.168.0.68', null);
 
       expect(resolved.asset.protocols).toEqual([{ name: 'ssh', port: 22 }]);
+      expect(resolved.asset.address).toBe('192.168.0.68');
+      expect(resolved.asset.platformType).toBe('windows');
       expect(resolved.account).toMatchObject({ id: 'account-1', alias: 'opencli', username: 'opencli' });
       expect(fetchMock).toHaveBeenCalledWith(
         'https://jumpserver.example.com/api/v1/perms/users/self/assets/asset-1/',
-        expect.any(Object),
+        expect.objectContaining({ headers: expect.objectContaining({ 'X-CSRFToken': 'jumpserver' }) }),
       );
     } finally {
       globalThis.window = previousWindow;
@@ -434,6 +721,9 @@ describe('jumpserver helper behavior', () => {
   it('normalizes absolute remote paths and rejects traversal segments', () => {
     expect(normalizeRemoteDirectory('/tmp//opencli/')).toBe('/tmp/opencli');
     expect(normalizeRemoteFile('/tmp/1.txt')).toBe('/tmp/1.txt');
+    expect(normalizeRemoteDirectory('/C:\\Users\\mozhe\\Downloads')).toBe('/C:/Users/mozhe/Downloads');
+    expect(normalizeRemoteFile('/C:\\Users\\mozhe\\Downloads\\1.txt')).toBe('/C:/Users/mozhe/Downloads/1.txt');
+    expect(remoteJoin('/C:/Users/mozhe/Downloads', '1.txt')).toBe('/C:/Users/mozhe/Downloads/1.txt');
     expect(() => normalizeRemoteDirectory('/tmp/../root')).toThrow(ArgumentError);
     expect(() => normalizeRemoteFile('tmp/1.txt')).toThrow(ArgumentError);
   });

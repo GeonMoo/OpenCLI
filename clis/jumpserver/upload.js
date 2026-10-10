@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import * as path from 'node:path';
 import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { CommandExecutionError } from '@geonmoo/opencli/errors';
 import {
@@ -33,8 +34,9 @@ cli({
   ],
   columns: ['remotePath', 'fileName', 'size', 'status'],
   func: async (page, args) => {
-    const localPath = String(args.file ?? '').trim();
-    const fileName = localBasename(localPath);
+    const localFile = String(args.file ?? '').trim();
+    const fileName = localBasename(localFile);
+    const localPath = path.resolve(localFile);
     const remoteDir = normalizeRemoteDirectory(args['remote-dir']);
     const remotePath = remoteJoin(remoteDir, fileName);
     const timeoutSeconds = normalizePositiveInteger(args.timeout, 120, 'timeout', 600);
