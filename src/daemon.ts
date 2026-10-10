@@ -38,6 +38,7 @@ import {
 } from './daemon-utils.js';
 import {
   SessionLeaseRegistry,
+  SESSION_LEASE_TTL_MS,
   buildSessionBusyFailure,
   getSessionLeaseKey,
   isSessionLeaseCommand,
@@ -90,7 +91,14 @@ const pending = new Map<string, PendingEntry>();
 // Serializes concurrent adapter write commands so a retry can't drive the same
 // Chrome tab as a still-running command. Stale leases self-expire (see
 // session-lease.ts).
-const sessionLeases = new SessionLeaseRegistry();
+const sessionLeases = new SessionLeaseRegistry(SESSION_LEASE_TTL_MS, (pid) => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code !== 'ESRCH';
+  }
+});
 
 /** A TTL-stale lease holder with a command still in flight is alive, not dead. */
 function runHasPendingWork(runId: string): boolean {

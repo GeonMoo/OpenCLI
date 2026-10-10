@@ -5,9 +5,10 @@ import { withJumpServer, normalizeNonEmpty, throwJumpServerError } from './utils
 cli({
   site: 'jumpserver',
   name: 'connect',
+  aliases: ['login'],
   description: 'Connect to a permitted JumpServer SSH asset and keep the terminal in the persistent browser session',
   access: 'write',
-  example: 'opencli jumpserver connect my-linux-host',
+  example: 'opencli jumpserver connect my-linux-host --url https://jumpserver.example.com',
   domain: 'jumpserver.local',
   strategy: Strategy.COOKIE,
   browser: true,
@@ -17,12 +18,13 @@ cli({
   args: [
     { name: 'asset', type: 'string', required: true, positional: true, help: 'Exact JumpServer asset name, id, address, or hostname' },
     { name: 'account', type: 'string', default: '', help: 'Account alias/username/id when the asset has multiple permitted accounts' },
+    { name: 'url', type: 'string', default: '', help: 'JumpServer http(s) URL; opens the site automatically and overrides OPENCLI_JUMPSERVER_URL' },
   ],
   columns: ['assetId', 'assetName', 'assetAddress', 'accountAlias', 'protocol', 'terminalId', 'status'],
   func: async (page, args) => {
     const assetQuery = normalizeNonEmpty(args.asset, 'asset');
     const accountQuery = String(args.account ?? '').trim();
-    const origin = await withJumpServer(page);
+    const origin = await withJumpServer(page, args.url);
 
     const result = await page.evaluate(async (stateKey, query, account) => {
       try {

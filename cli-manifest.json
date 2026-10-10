@@ -21868,9 +21868,12 @@
   {
     "site": "jumpserver",
     "name": "connect",
+    "aliases": [
+      "login"
+    ],
     "description": "Connect to a permitted JumpServer SSH asset and keep the terminal in the persistent browser session",
     "access": "write",
-    "example": "opencli jumpserver connect my-linux-host",
+    "example": "opencli jumpserver connect my-linux-host --url https://jumpserver.example.com",
     "domain": "jumpserver.local",
     "strategy": "cookie",
     "browser": true,
@@ -21888,6 +21891,13 @@
         "default": "",
         "required": false,
         "help": "Account alias/username/id when the asset has multiple permitted accounts"
+      },
+      {
+        "name": "url",
+        "type": "string",
+        "default": "",
+        "required": false,
+        "help": "JumpServer http(s) URL; opens the site automatically and overrides OPENCLI_JUMPSERVER_URL"
       }
     ],
     "columns": [
