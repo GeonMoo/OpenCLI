@@ -266,6 +266,27 @@ opencli plugin uninstall my-tool
 
 See [Plugins Guide](./docs/guide/plugins.md) for creating your own plugin.
 
+## Syncing with Upstream
+
+This fork uses `origin` for `GeonMoo/OpenCLI` and `upstream` for `jackwener/OpenCLI`. If `upstream` is missing, add it once:
+
+```bash
+git remote add upstream https://github.com/jackwener/OpenCLI.git
+```
+
+With a clean working tree, merge the latest upstream changes into `main`, then push to your fork:
+
+```bash
+git switch main
+git fetch upstream
+git merge upstream/main
+git push origin main
+```
+
+If you have uncommitted changes, stash them before switching branches with `git stash push -u -m "before upstream sync"`. After merging, return to the branch where you stashed them and run `git stash pop`. The `-u` option also saves untracked files.
+
+If the merge reports conflicts, resolve the affected files, run `git add <resolved-file>` for each one, then `git commit` to finish the merge before pushing. If `git stash pop` reports conflicts, resolve those separately; Git keeps the stash until you explicitly drop it.
+
 ## Testing
 
 See **[TESTING.md](./TESTING.md)** for how to run and write tests.
