@@ -46,6 +46,9 @@ cli({
           const titleEl = card.querySelector('[class*="title--"]');
           const title = titleEl ? normalize(titleEl.textContent) : '';
           if (!title || title.length < 3 || seenTitles.has(title)) continue;
+          const productLink = card.closest('a[href]') || card.querySelector('a[href]');
+          const productUrl = productLink?.href;
+          if (!productUrl) continue;
           seenTitles.add(title);
 
           const intEl = card.querySelector('[class*="priceInt--"]');
@@ -72,6 +75,7 @@ cli({
             if (spmId && /^\\d{10,}$/.test(spmId)) { itemId = spmId; break; }
             wrapper = wrapper.parentElement;
           }
+          if (!itemId) itemId = new URL(productUrl).searchParams.get('id') || '';
 
           results.push({
             rank: results.length + 1,
@@ -81,7 +85,7 @@ cli({
             shop,
             location,
             item_id: itemId,
-            url: itemId ? 'https://item.taobao.com/item.htm?id=' + itemId : '',
+            url: productUrl,
           });
           if (results.length >= ${limit}) break;
         }
