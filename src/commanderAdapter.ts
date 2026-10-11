@@ -203,7 +203,6 @@ function renderError(err: unknown, cmdName: string, verbose: boolean, traceMode?
  */
 export function registerAllCommands(
   program: Command,
-  siteGroups: Map<string, Command>,
 ): string[] {
   const seen = new Set<CliCommand>();
   const commandsBySite = new Map<string, CliCommand[]>();
@@ -216,11 +215,7 @@ export function registerAllCommands(
   }
 
   for (const [site, commands] of commandsBySite) {
-    let siteCmd = siteGroups.get(site);
-    if (!siteCmd) {
-      siteCmd = program.command(site);
-      siteGroups.set(site, siteCmd);
-    }
+    const siteCmd = program.command(site);
     for (const cmd of commands) {
       registerCommandToProgram(siteCmd, cmd);
     }

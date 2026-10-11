@@ -5,7 +5,7 @@
     "access": "public",
     "registry": "https://registry.npmjs.org"
   },
-  "description": "Make any website or Electron App your CLI. AI-powered.",
+  "description": "Make any website your CLI. AI-powered.",
   "engines": {
     "node": ">=20.18.1"
   },
@@ -21,7 +21,6 @@
     "./types": "./dist/src/types.js",
     "./utils": "./dist/src/utils.js",
     "./logger": "./dist/src/logger.js",
-    "./launcher": "./dist/src/launcher.js",
     "./browser/cdp": "./dist/src/browser/cdp.js",
     "./browser/page": "./dist/src/browser/page.js",
     "./browser/utils": "./dist/src/browser/utils.js",
