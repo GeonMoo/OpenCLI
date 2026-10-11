@@ -29,3 +29,11 @@ autoresearch-results.tsv
 .omc/
 .omx/
 .codegraph/
+
+# Exports
+exports/
+*.png
+*.txt
+*.csv
+*.json
+*.jsonl
