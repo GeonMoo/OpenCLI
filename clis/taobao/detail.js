@@ -1,4 +1,5 @@
 import { cli, Strategy } from '@geonmoo/opencli/registry';
+import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
 import { normalizeNumericId } from '../_shared/common.js';
 cli({
     site: 'taobao',
@@ -8,20 +9,49 @@ cli({
     domain: 'item.taobao.com',
     strategy: Strategy.COOKIE,
     args: [
-        { name: 'id', positional: true, required: true, help: '商品 ID' },
+        { name: 'id', positional: true, required: true, help: '商品 ID、完整详情链接或 search 返回的商品链接' },
     ],
     columns: ['field', 'value'],
     navigateBefore: false,
     func: async (page, kwargs) => {
-        const itemId = normalizeNumericId(kwargs.id, 'id', '827563850178');
-        await page.goto('https://www.taobao.com');
-        await page.wait(2);
-        await page.evaluate(`location.href = ${JSON.stringify(`https://item.taobao.com/item.htm?id=${itemId}`)}`);
+        const input = String(kwargs.id ?? '').trim();
+        let targetUrl;
+        let rawId = input;
+        if (input.startsWith('https://')) {
+            let parsed;
+            try { parsed = new URL(input); } catch { throw new ArgumentError('Invalid product URL'); }
+            const isDetail = ['item.taobao.com', 'detail.tmall.com'].includes(parsed.host) && parsed.pathname === '/item.htm';
+            const isClick = ['click.simba.taobao.com', 'mclick.simba.taobao.com'].includes(parsed.host) && parsed.pathname === '/cc_im';
+            if ((!isDetail && !isClick) || parsed.username || parsed.password) {
+                throw new ArgumentError('Use a Taobao/Tmall detail URL or a product link returned by taobao search');
+            }
+            rawId = parsed.searchParams.get('id');
+            targetUrl = input;
+        }
+        const itemId = normalizeNumericId(rawId, 'id', '827563850178');
+        const alreadyOpen = await page.evaluate(`(() => {
+            const current = new URL(location.href);
+            return ['item.taobao.com', 'detail.tmall.com'].includes(current.host)
+                && current.pathname === '/item.htm' && current.searchParams.get('id') === ${JSON.stringify(itemId)};
+        })()`);
+        if (!alreadyOpen) {
+            await page.goto('https://www.taobao.com');
+            await page.wait(2);
+            await page.evaluate(`location.href = ${JSON.stringify(targetUrl || `https://item.taobao.com/item.htm?id=${itemId}`)}`);
+        }
         await page.wait(6);
         const data = await page.evaluate(`
       (() => {
+        const current = new URL(location.href);
+        if (!['item.taobao.com', 'detail.tmall.com'].includes(current.host)
+            || current.pathname !== '/item.htm' || current.searchParams.get('id') !== ${JSON.stringify(itemId)}) {
+          return { wrongTarget: true };
+        }
         const normalize = v => (v || '').replace(/\\s+/g, ' ').trim();
         const text = document.body?.innerText || '';
+        if (!document.querySelector('.paramsInfoArea') && text.includes('系统检测到当前访问存在异常')) {
+          return { blocked: true };
+        }
         const results = [];
 
         const titleEl = document.querySelector('[class*="mainTitle--"]');
@@ -61,11 +91,27 @@ cli({
           if (specs.length) results.push({ field: '可选规格', value: specs.join(' | ') });
         }
 
+        const paramsArea = document.querySelector('.paramsInfoArea');
+        for (const [prefix, reversed] of [['emphasis', true], ['general', false]]) {
+          for (const item of paramsArea?.querySelectorAll('[class*="' + prefix + 'ParamsInfoItem--"]') || []) {
+            const heading = item.querySelector('[class*="' + prefix + 'ParamsInfoItemTitle--"]');
+            const subtitle = item.querySelector('[class*="' + prefix + 'ParamsInfoItemSubTitle--"]');
+            const label = reversed ? subtitle : heading;
+            const content = reversed ? heading : subtitle;
+            const paramName = normalize(label?.getAttribute('title') || label?.textContent);
+            const paramValue = normalize(content?.getAttribute('title') || content?.textContent);
+            if (paramName && paramValue) results.push({ field: paramName, value: paramValue });
+          }
+        }
+
         results.push({ field: 'ID', value: ${JSON.stringify(itemId)} });
-        results.push({ field: '链接', value: location.href.split('&')[0] });
+        results.push({ field: '链接', value: location.href });
         return results;
       })()
     `);
-        return Array.isArray(data) ? data : [];
+        if (data?.wrongTarget) throw new CommandExecutionError('Product link did not resolve to the requested Taobao/Tmall item. Refresh taobao search to get a current link.');
+        if (data?.blocked) throw new CommandExecutionError('Taobao reports abnormal access; parameter information is unavailable. Retry after normal browser access is restored.');
+        if (!Array.isArray(data)) throw new CommandExecutionError('Taobao detail returned an unexpected response');
+        return data;
     },
 });

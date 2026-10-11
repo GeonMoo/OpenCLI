@@ -35489,7 +35489,7 @@
         "type": "str",
         "required": true,
         "positional": true,
-        "help": "商品 ID"
+        "help": "商品 ID、完整详情链接或 search 返回的商品链接"
       }
     ],
     "columns": [
