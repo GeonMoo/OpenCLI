@@ -36744,6 +36744,168 @@
     "siteSession": "persistent"
   },
   {
+    "site": "tradingview",
+    "name": "calendar",
+    "description": "TradingView daily calendars: economic (default), earnings, dividend, ipo; today by default",
+    "access": "read",
+    "domain": "cn.tradingview.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "class",
+        "type": "string",
+        "default": "economic",
+        "required": false,
+        "help": "Calendar: economic, earnings, dividend, ipo",
+        "choices": [
+          "economic",
+          "earnings",
+          "dividend",
+          "ipo"
+        ]
+      },
+      {
+        "name": "date",
+        "type": "string",
+        "required": false,
+        "help": "Calendar date in YYYY-MM-DD (default: today in local time)"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 10,
+        "required": false,
+        "help": "Maximum loaded items to return (1-100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "class",
+      "title",
+      "symbol",
+      "market",
+      "dayStart",
+      "eventTime",
+      "details",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "tradingview/calendar.js",
+    "sourceFile": "tradingview/calendar.js",
+    "navigateBefore": true,
+    "defaultWindowMode": "foreground"
+  },
+  {
+    "site": "tradingview",
+    "name": "ideas",
+    "description": "TradingView community trading ideas, first 10 loaded cards by default",
+    "access": "read",
+    "domain": "cn.tradingview.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 10,
+        "required": false,
+        "help": "Maximum loaded items to return (1-100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "title",
+      "description",
+      "author",
+      "likes",
+      "comments",
+      "pubTime",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "tradingview/ideas.js",
+    "sourceFile": "tradingview/ideas.js",
+    "navigateBefore": true
+  },
+  {
+    "site": "tradingview",
+    "name": "news",
+    "description": "TradingView Chinese news flow, first 10 rendered headlines by default",
+    "access": "read",
+    "domain": "cn.tradingview.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 10,
+        "required": false,
+        "help": "Maximum loaded items to return (1-100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "title",
+      "source",
+      "pubTime",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "tradingview/news.js",
+    "sourceFile": "tradingview/news.js",
+    "navigateBefore": true
+  },
+  {
+    "site": "tradingview",
+    "name": "scripts",
+    "aliases": [
+      "script"
+    ],
+    "description": "TradingView indicators and strategies; supports marketplace and editorpicks",
+    "access": "read",
+    "domain": "cn.tradingview.com",
+    "strategy": "ui",
+    "browser": true,
+    "args": [
+      {
+        "name": "class",
+        "type": "string",
+        "default": "all",
+        "required": false,
+        "help": "Script list: all, marketplace, editorpicks",
+        "choices": [
+          "all",
+          "marketplace",
+          "editorpicks"
+        ]
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 10,
+        "required": false,
+        "help": "Maximum loaded items to return (1-100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "title",
+      "description",
+      "author",
+      "price",
+      "likes",
+      "comments",
+      "pubTime",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "tradingview/scripts.js",
+    "sourceFile": "tradingview/scripts.js",
+    "navigateBefore": true
+  },
+  {
     "site": "trip",
     "name": "attraction",
     "description": "Search Trip.com attractions and experiences by destination keyword",
