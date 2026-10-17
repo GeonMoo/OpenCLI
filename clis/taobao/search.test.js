@@ -15,7 +15,7 @@ describe('taobao search product links', () => {
         const page = createPageMock([], {
             evaluate: vi.fn(async script => {
                 if (script.startsWith('location.href')) return;
-                return new Function('document', `return (${script})`)(dom.window.document);
+                return new Function('document', 'location', `return (${script})`)(dom.window.document, dom.window.location);
             }),
         });
         try {

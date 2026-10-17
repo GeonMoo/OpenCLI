@@ -3,9 +3,11 @@
  */
 
 import fs from 'node:fs';
+import { emitResult } from './command-output.js';
 import Table from 'cli-table3';
 import yaml from 'js-yaml';
 import { CommandExecutionError } from './errors.js';
+import { normalizeOutputFormat } from './output-format.js';
 
 export interface RenderOptions {
   fmt?: string;
@@ -33,24 +35,14 @@ function resolveColumns(rows: Record<string, unknown>[], opts: RenderOptions): s
 }
 
 export function render(data: unknown, opts: RenderOptions = {}): void {
-  let fmt = opts.fmt ?? 'table';
-  // Non-TTY auto-downgrade only when format was NOT explicitly passed by user.
-  if (!opts.fmtExplicit) {
-    if (fmt === 'table' && !process.stdout.isTTY) fmt = 'yaml';
-  }
-
+  const fmt = normalizeOutputFormat(opts.fmt ?? 'json');
+  if (fmt === 'json' && !opts.outputFile) { emitResult(data); return; }
   const outputLines: string[] = [];
   const emit: LineEmitter = opts.outputFile
     ? (...values) => outputLines.push(values.map(String).join(' ') + '\n')
     : (...values) => console.log(...values);
-
-  if (data === null || data === undefined) {
-    emit(data);
-    writeOutputFile(opts.outputFile, fmt, outputLines);
-    return;
-  }
   switch (fmt) {
-    case 'json': renderJson(data, emit); break;
+    case 'json': emit(JSON.stringify(data, null, 2)); break;
     case 'plain': renderPlain(data, emit); break;
     case 'md': case 'markdown': renderMarkdown(data, opts, emit); break;
     case 'csv': renderCsv(data, opts, emit); break;
@@ -62,7 +54,6 @@ export function render(data: unknown, opts: RenderOptions = {}): void {
 
 function writeOutputFile(outputFile: string | undefined, fmt: string, lines: string[]): void {
   if (!outputFile) return;
-
   const content = lines.join('');
   const fileContent = fmt === 'csv' ? `\uFEFF${content.replace(/^\uFEFF/, '')}` : content;
   try {
@@ -104,9 +95,6 @@ function renderTable(data: unknown, opts: RenderOptions, emit: LineEmitter): voi
   emit(footer.join(' · '));
 }
 
-function renderJson(data: unknown, emit: LineEmitter): void {
-  emit(JSON.stringify(data, null, 2));
-}
 function renderPlain(data: unknown, emit: LineEmitter): void {
   const rows = normalizeRows(data);
   if (!rows.length) return;

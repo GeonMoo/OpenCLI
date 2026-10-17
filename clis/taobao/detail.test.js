@@ -60,15 +60,15 @@ describe('taobao detail parameters', () => {
 
     it('reuses the clicked product page without navigating or losing URL parameters', async () => {
         const url = 'https://detail.tmall.com/item.htm?ali_refid=clicked&id=611927494365&skuId=6310366495021';
-        const page = createPageMock([true, [{ field: '链接', value: url }]]);
+        const page = createPageMock([true, 'ok', [{ field: '链接', value: url }]]);
         expect(await command.func(page, { id: '611927494365' })).toEqual([{ field: '链接', value: url }]);
         expect(page.goto).not.toHaveBeenCalled();
-        expect(page.evaluate).toHaveBeenCalledTimes(2);
+        expect(page.evaluate).toHaveBeenCalledTimes(3);
     });
 
     it('preserves the supplied full product URL when navigation is needed', async () => {
         const url = 'https://detail.tmall.com/item.htm?ali_refid=clicked&id=611927494365&skuId=6310366495021';
-        const page = createPageMock([false, undefined, []]);
+        const page = createPageMock([false, undefined, 'ok', []]);
         await command.func(page, { id: url });
         expect(page.evaluate.mock.calls[1][0]).toBe(`location.href = ${JSON.stringify(url)}`);
     });
@@ -85,7 +85,7 @@ describe('taobao detail parameters', () => {
     it('accepts original signed search links and follows them without rewriting signatures', async () => {
         for (const host of ['click.simba.taobao.com', 'mclick.simba.taobao.com']) {
             const url = `https://${host}/cc_im?e=opaque%2Bsignature%2Fvalue%3D&a=skuId%3D6310366495021&id=611927494365&spm=a21n57.1.item.1`;
-            const page = createPageMock([false, undefined, [{ field: '品牌', value: '丸丫' }]]);
+            const page = createPageMock([false, undefined, 'ok', [{ field: '品牌', value: '丸丫' }]]);
             await command.func(page, { id: url });
             expect(page.evaluate.mock.calls[1][0]).toBe(`location.href = ${JSON.stringify(url)}`);
         }

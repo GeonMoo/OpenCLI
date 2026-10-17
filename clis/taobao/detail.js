@@ -1,5 +1,6 @@
 import { cli, Strategy } from '@geonmoo/opencli/registry';
 import { ArgumentError, CommandExecutionError } from '@geonmoo/opencli/errors';
+import { assertTaobaoPageUsable } from './page-state.js';
 import { normalizeNumericId } from '../_shared/common.js';
 cli({
     site: 'taobao',
@@ -40,6 +41,7 @@ cli({
             await page.evaluate(`location.href = ${JSON.stringify(targetUrl || `https://item.taobao.com/item.htm?id=${itemId}`)}`);
         }
         await page.wait(6);
+        await assertTaobaoPageUsable(page);
         const data = await page.evaluate(`
       (() => {
         const current = new URL(location.href);

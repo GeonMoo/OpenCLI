@@ -44,6 +44,14 @@ describe('commanderAdapter arg passing', () => {
     process.exitCode = undefined;
   });
 
+  it('rejects an unknown format before executing the command', async () => {
+    const program = new Command();
+    registerCommandToProgram(program.command('paperreview'), { ...cmd, access: 'write' });
+    await expect(program.parseAsync(['node', 'opencli', 'paperreview', 'submit', './paper.pdf', '-f', 'bogus']))
+      .rejects.toMatchObject({ code: 'ARGUMENT', exitCode: 2 });
+    expect(mockExecuteCommand).not.toHaveBeenCalled();
+  });
+
   it('passes bool flag values through to executeCommand for coercion', async () => {
     const program = new Command();
     const siteCmd = program.command('paperreview');
@@ -296,7 +304,7 @@ describe('commanderAdapter default formats', () => {
     process.exitCode = undefined;
   });
 
-  it('uses the command defaultFormat when the user keeps the default table format', async () => {
+  it('defaults to JSON regardless of adapter presentation preferences', async () => {
     const program = new Command();
     const siteCmd = program.command('gemini');
     registerCommandToProgram(siteCmd, cmd);
@@ -305,8 +313,24 @@ describe('commanderAdapter default formats', () => {
 
     expect(mockRenderOutput).toHaveBeenCalledWith(
       [{ response: 'hello' }],
-      expect.objectContaining({ fmt: 'plain' }),
+      expect.objectContaining({ fmt: 'json' }),
     );
+  });
+
+  it('emits null for an empty adapter result', async () => {
+    mockExecuteCommand.mockResolvedValue(null);
+    const program = new Command();
+    registerCommandToProgram(program.command('gemini'), cmd);
+    await program.parseAsync(['node', 'opencli', 'gemini', 'ask']);
+    expect(mockRenderOutput).toHaveBeenCalledWith(null, expect.objectContaining({ fmt: 'json' }));
+  });
+
+  it('preserves an explicit raw stdout export without appending JSON', async () => {
+    mockExecuteCommand.mockResolvedValue(null);
+    const program = new Command();
+    registerCommandToProgram(program.command('gemini'), { ...cmd, args: [{ name: 'stdout', type: 'boolean', default: false }] });
+    await program.parseAsync(['node', 'opencli', 'gemini', 'ask', '--stdout', 'true']);
+    expect(mockRenderOutput).not.toHaveBeenCalled();
   });
 
   it('respects an explicit user format over the command defaultFormat', async () => {
@@ -455,7 +479,7 @@ describe('commanderAdapter output files', () => {
     const program = new Command();
     const siteCmd = program.command('ke');
     registerCommandToProgram(siteCmd, cmd);
-    const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const stdoutSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     await program.parseAsync([
       'node',
@@ -469,8 +493,10 @@ describe('commanderAdapter output files', () => {
 
     expect(mockExecuteCommand).not.toHaveBeenCalled();
     expect(mockRenderOutput).not.toHaveBeenCalled();
-    expect(stderrSpy.mock.calls.map(call => String(call[0])).join('')).toContain('Output filename must not be empty');
-    stderrSpy.mockRestore();
+    expect(JSON.parse(String(stdoutSpy.mock.calls.at(-1)?.[0]))).toMatchObject({
+      ok: false, error: { code: 'ARGUMENT', message: 'Output filename must not be empty' },
+    });
+    stdoutSpy.mockRestore();
   });
 
   it('does not render or write an output file when command execution fails', async () => {
@@ -514,12 +540,12 @@ describe('commanderAdapter error envelope output', () => {
     process.exitCode = undefined;
   });
 
-  it('outputs YAML error envelope with adapter hint to stderr', async () => {
+  it('outputs JSON error envelope with adapter hint to stdout', async () => {
     const program = new Command();
     const siteCmd = program.command('xiaohongshu');
     registerCommandToProgram(siteCmd, cmd);
 
-    const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const stderrSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     mockExecuteCommand.mockRejectedValueOnce(
       new EmptyResultError(
         'xiaohongshu/note',
@@ -530,21 +556,19 @@ describe('commanderAdapter error envelope output', () => {
     await program.parseAsync(['node', 'opencli', 'xiaohongshu', 'note', '69ca3927000000001a020fd5']);
 
     const output = stderrSpy.mock.calls.map(c => String(c[0])).join('');
-    expect(output).toContain('ok: false');
-    expect(output).toContain('code: EMPTY_RESULT');
+    expect(output).toContain('"ok":false');
+    expect(output).toContain('"code":"EMPTY_RESULT"');
     expect(output).toContain('xsec_token');
-    expect(output).toContain('--trace=retain-on-failure');
-    expect(output).toContain('opencli xiaohongshu note --trace retain-on-failure');
 
     stderrSpy.mockRestore();
   });
 
-  it('outputs YAML error envelope for selector errors', async () => {
+  it('outputs JSON error envelope for selector errors', async () => {
     const program = new Command();
     const siteCmd = program.command('xiaohongshu');
     registerCommandToProgram(siteCmd, cmd);
 
-    const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const stderrSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     mockExecuteCommand.mockRejectedValueOnce(
       selectorError('.note-title', 'The note title selector no longer matches the current page.'),
     );
@@ -552,10 +576,9 @@ describe('commanderAdapter error envelope output', () => {
     await program.parseAsync(['node', 'opencli', 'xiaohongshu', 'note', '69ca3927000000001a020fd5']);
 
     const output = stderrSpy.mock.calls.map(c => String(c[0])).join('');
-    expect(output).toContain('ok: false');
-    expect(output).toContain('code: SELECTOR');
+    expect(output).toContain('"ok":false');
+    expect(output).toContain('"code":"SELECTOR"');
     expect(output).toContain('selector no longer matches');
-    expect(output).toContain('--trace=retain-on-failure');
 
     stderrSpy.mockRestore();
   });
@@ -565,7 +588,7 @@ describe('commanderAdapter error envelope output', () => {
     const siteCmd = program.command('xiaohongshu');
     registerCommandToProgram(siteCmd, cmd);
 
-    const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const stderrSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     mockExecuteCommand.mockRejectedValueOnce(selectorError('.note-title'));
 
     await program.parseAsync([
@@ -579,7 +602,7 @@ describe('commanderAdapter error envelope output', () => {
     ]);
 
     const output = stderrSpy.mock.calls.map(c => String(c[0])).join('');
-    expect(output).toContain('code: SELECTOR');
+    expect(output).toContain('"code":"SELECTOR"');
     expect(output).not.toContain('AutoFix: re-run');
 
     stderrSpy.mockRestore();
@@ -590,7 +613,7 @@ describe('commanderAdapter error envelope output', () => {
     const siteCmd = program.command('xiaohongshu');
     registerCommandToProgram(siteCmd, cmd);
 
-    const stderrSpy = vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const stderrSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined);
     const err = selectorError('.note-title');
     attachTraceReceipt(err, {
       schemaVersion: 1,
@@ -616,10 +639,10 @@ describe('commanderAdapter error envelope output', () => {
     ]);
 
     const output = stderrSpy.mock.calls.map(c => String(c[0])).join('');
-    expect(output).toContain('trace:');
-    expect(output).toContain('dir: /tmp/opencli/profiles/default/traces/trace-1');
-    expect(output).toContain('summaryPath: /tmp/opencli/profiles/default/traces/trace-1/summary.md');
-    expect(output).toContain('receiptPath: /tmp/opencli/profiles/default/traces/trace-1/receipt.json');
+    expect(JSON.parse(output).trace.traceId).toBe('trace-1');
+    expect(output).toContain('/tmp/opencli/profiles/default/traces/trace-1');
+    expect(output).toContain('/tmp/opencli/profiles/default/traces/trace-1/summary.md');
+    expect(output).toContain('/tmp/opencli/profiles/default/traces/trace-1/receipt.json');
 
     stderrSpy.mockRestore();
   });
