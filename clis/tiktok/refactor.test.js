@@ -153,30 +153,25 @@ describe('tiktok/explore (page-context refactor)', () => {
 
 });
 
-describe('tiktok/user (page-context refactor)', () => {
-    it('validates username and --limit upfront before navigating', async () => {
+describe('tiktok/user input and snapshot contract', () => {
+    it('validates username and limit before navigation or capture', async () => {
         const page = makePage([]);
-        await expect(userCommand.func(page, { username: '', limit: 5 })).rejects.toBeInstanceOf(ArgumentError);
-        await expect(userCommand.func(page, { username: '@bad/name', limit: 5 })).rejects.toBeInstanceOf(ArgumentError);
-        await expect(userCommand.func(page, { username: 'dictogo', limit: 0 })).rejects.toBeInstanceOf(ArgumentError);
-        await expect(userCommand.func(page, { username: 'dictogo', limit: userTest.MAX_LIMIT + 1 })).rejects.toBeInstanceOf(ArgumentError);
+        for (const args of [{ username: '' }, { username: '@bad/name' }, { username: 'dictogo', limit: 0 }, { username: 'dictogo', limit: userTest.MAX_LIMIT + 1 }]) {
+            await expect(userCommand.func(page, args)).rejects.toBeInstanceOf(ArgumentError);
+        }
         expect(page.goto).not.toHaveBeenCalled();
     });
-
-    it('navigates to the profile and returns full sourced video rows', async () => {
-        const page = makePage([sampleUserVideoRow]);
-        await expect(userCommand.func(page, { username: '@dictogo', limit: 5 })).resolves.toEqual([sampleUserVideoRow]);
+    it('can return sufficient bootstrap rows without network capture', async () => {
+        const page = makePage({ rows: [sampleUserVideoRow], secUid: 'self' });
+        await expect(userCommand.func(page, { username: '@dictogo', limit: 1 })).resolves.toEqual([sampleUserVideoRow]);
         expect(page.goto).toHaveBeenCalledWith('https://www.tiktok.com/@dictogo', { waitUntil: 'load', settleMs: 6000 });
     });
-
-    it('maps empty, auth, upstream, and invalid JSON failures to typed errors', async () => {
-        await expect(userCommand.func(makePage([]), { username: 'dictogo', limit: 5 })).rejects.toBeInstanceOf(EmptyResultError);
-        await expect(userCommand.func(makeFailingPage(new Error('No videos found for @dictogo')), { username: 'dictogo', limit: 5 })).rejects.toBeInstanceOf(EmptyResultError);
-        await expect(userCommand.func(makeFailingPage(new Error('No videos found for @dictogo (profile/search API failed: HTTP 500)')), { username: 'dictogo', limit: 5 })).rejects.toBeInstanceOf(CommandExecutionError);
-        await expect(userCommand.func(makeFailingPage(new Error('No videos found for @dictogo (profile/search API failed: HTTP 403)')), { username: 'dictogo', limit: 5 })).rejects.toBeInstanceOf(AuthRequiredError);
-        await expect(userCommand.func(makeFailingPage(new Error('No videos found for @dictogo (profile/search API failed: invalid JSON)')), { username: 'dictogo', limit: 5 })).rejects.toBeInstanceOf(CommandExecutionError);
+    it('distinguishes known empty profiles, malformed snapshots and missing capture support', async () => {
+        await expect(userCommand.func(makePage({ rows: [], videoCount: 0 }), { username: 'dictogo' })).rejects.toBeInstanceOf(EmptyResultError);
+        await expect(userCommand.func(makePage([]), { username: 'dictogo' })).rejects.toBeInstanceOf(CommandExecutionError);
+        await expect(userCommand.func(makePage({ rows: [], videoCount: 51 }), { username: 'dictogo' })).rejects.toThrow(/network capture/);
+        await expect(userCommand.func(makePage({ rows: [], loginWall: true }), { username: 'dictogo' })).rejects.toBeInstanceOf(AuthRequiredError);
     });
-
 });
 
 describe('tiktok/friends (page-context refactor)', () => {

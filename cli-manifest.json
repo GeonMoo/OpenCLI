@@ -7417,7 +7417,8 @@
     "type": "js",
     "modulePath": "ctrip/flight.js",
     "sourceFile": "ctrip/flight.js",
-    "navigateBefore": false
+    "navigateBefore": false,
+    "defaultWindowMode": "foreground"
   },
   {
     "site": "ctrip",
@@ -7861,7 +7862,7 @@
     "access": "read",
     "domain": "dblp.org",
     "strategy": "public",
-    "browser": false,
+    "browser": true,
     "args": [
       {
         "name": "author",
@@ -7898,7 +7899,8 @@
     ],
     "type": "js",
     "modulePath": "dblp/author.js",
-    "sourceFile": "dblp/author.js"
+    "sourceFile": "dblp/author.js",
+    "navigateBefore": false
   },
   {
     "site": "dblp",
@@ -7911,7 +7913,7 @@
     "access": "read",
     "domain": "dblp.org",
     "strategy": "public",
-    "browser": false,
+    "browser": true,
     "args": [
       {
         "name": "key",
@@ -7935,7 +7937,8 @@
     ],
     "type": "js",
     "modulePath": "dblp/paper.js",
-    "sourceFile": "dblp/paper.js"
+    "sourceFile": "dblp/paper.js",
+    "navigateBefore": false
   },
   {
     "site": "dblp",
@@ -7944,7 +7947,7 @@
     "access": "read",
     "domain": "dblp.org",
     "strategy": "public",
-    "browser": false,
+    "browser": true,
     "args": [
       {
         "name": "query",
@@ -7974,7 +7977,8 @@
     ],
     "type": "js",
     "modulePath": "dblp/search.js",
-    "sourceFile": "dblp/search.js"
+    "sourceFile": "dblp/search.js",
+    "navigateBefore": false
   },
   {
     "site": "dblp",
@@ -7983,7 +7987,7 @@
     "access": "read",
     "domain": "dblp.org",
     "strategy": "public",
-    "browser": false,
+    "browser": true,
     "args": [
       {
         "name": "query",
@@ -8009,7 +8013,8 @@
     ],
     "type": "js",
     "modulePath": "dblp/venue.js",
-    "sourceFile": "dblp/venue.js"
+    "sourceFile": "dblp/venue.js",
+    "navigateBefore": false
   },
   {
     "site": "deepseek",
@@ -9858,6 +9863,46 @@
     "sourceFile": "douyin/delete.js",
     "navigateBefore": "https://creator.douyin.com",
     "siteSession": "persistent"
+  },
+  {
+    "site": "douyin",
+    "name": "detail",
+    "description": "单条视频全解（短链/链接/ID → 文案、互动数据、作者、下载地址、图文图集）",
+    "access": "read",
+    "example": "opencli douyin detail \"https://v.douyin.com/xxxx/\" -f yaml",
+    "domain": "www.douyin.com",
+    "strategy": "cookie",
+    "browser": true,
+    "args": [
+      {
+        "name": "target",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "分享短链 / 视频链接 / 纯数字 ID"
+      }
+    ],
+    "columns": [
+      "aweme_id",
+      "desc",
+      "author",
+      "author_sec_uid",
+      "digg",
+      "comment",
+      "collect",
+      "share",
+      "created",
+      "duration_s",
+      "music",
+      "play_url",
+      "cover",
+      "images",
+      "share_url"
+    ],
+    "type": "js",
+    "modulePath": "douyin/detail.js",
+    "sourceFile": "douyin/detail.js",
+    "navigateBefore": "https://www.douyin.com"
   },
   {
     "site": "douyin",
@@ -17684,7 +17729,7 @@
     "type": "js",
     "modulePath": "instagram/profile.js",
     "sourceFile": "instagram/profile.js",
-    "navigateBefore": "https://www.instagram.com"
+    "navigateBefore": false
   },
   {
     "site": "instagram",
@@ -17833,7 +17878,7 @@
     "type": "js",
     "modulePath": "instagram/search.js",
     "sourceFile": "instagram/search.js",
-    "navigateBefore": "https://www.instagram.com"
+    "navigateBefore": false
   },
   {
     "site": "instagram",
@@ -17998,7 +18043,7 @@
     "type": "js",
     "modulePath": "instagram/user.js",
     "sourceFile": "instagram/user.js",
-    "navigateBefore": "https://www.instagram.com"
+    "navigateBefore": false
   },
   {
     "site": "instagram",
@@ -36971,7 +37016,7 @@
   {
     "site": "tiktok",
     "name": "user",
-    "description": "Get recent videos from a TikTok user via page-context APIs",
+    "description": "Get recent videos from a TikTok user from page-rendered responses",
     "access": "read",
     "domain": "www.tiktok.com",
     "strategy": "cookie",
@@ -37010,7 +37055,7 @@
     "type": "js",
     "modulePath": "tiktok/user.js",
     "sourceFile": "tiktok/user.js",
-    "navigateBefore": "https://www.tiktok.com"
+    "navigateBefore": false
   },
   {
     "site": "tiktok",
@@ -44034,7 +44079,14 @@
         "type": "int",
         "default": 15,
         "required": false,
-        "help": "Number of notes to return"
+        "help": "Number of notes to return (1-1000)"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 300,
+        "required": false,
+        "help": "Maximum loading time in seconds (1-1800)"
       }
     ],
     "columns": [

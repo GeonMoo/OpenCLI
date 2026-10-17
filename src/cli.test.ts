@@ -1,4 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { clearAllHooks, onBeforeExecute, onAfterExecute, type HookContext } from './hooks.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -1260,6 +1261,71 @@ describe('browser tab targeting commands', () => {
 
     expect(browserState.page?.newTab).toHaveBeenCalledWith('https://three.example');
     expect(consoleLogSpy.mock.calls.flat().join('\n')).toContain('"page":"tab-3"');
+  });
+
+  afterEach(() => clearAllHooks());
+
+  it('awaits browser hooks before connecting and exposes positional URL and final output', async () => {
+    let release!: () => void;
+    let entered!: () => void;
+    const ready = new Promise<void>(resolve => { entered = resolve; });
+    const gate = new Promise<void>(resolve => { release = resolve; });
+    let beforeContext: HookContext | undefined;
+    onBeforeExecute(async context => { beforeContext = context; context.marker = 'shared'; entered(); await gate; });
+    const after = vi.fn(); onAfterExecute(after);
+    const running = createProgram('', '').parseAsync(['node', 'opencli', 'browser', '--session', 'test', 'open', 'https://example.com/path']);
+    await ready;
+    expect(mockBrowserConnect).not.toHaveBeenCalled();
+    expect(beforeContext).toMatchObject({ command: 'browser/open', args: { url: 'https://example.com/path', session: 'test' } });
+    release(); await running;
+    expect(after).toHaveBeenCalledTimes(1);
+    expect(after.mock.calls[0][0]).toBe(beforeContext);
+    expect(after.mock.calls[0][0]).toMatchObject({ marker: 'shared', startedAt: expect.any(Number), finishedAt: expect.any(Number) });
+    expect(after.mock.calls[0][1]).toEqual(lastJsonLog());
+  });
+
+  it.each(['bind', 'unbind'])('emits both lifecycle hooks for session command %s', async name => {
+    const before = vi.fn((_context: HookContext) => { expect(mockBrowserConnect).not.toHaveBeenCalled(); });
+    const after = vi.fn(); onBeforeExecute(before); onAfterExecute(after);
+    await createProgram('', '').parseAsync(['node', 'opencli', 'browser', '--session', 'test', name]);
+    expect(before).toHaveBeenCalledTimes(1);
+    expect(before.mock.calls[0]?.[0]).toMatchObject({ command: `browser/${name}`, args: { session: 'test' } });
+    expect(after).toHaveBeenCalledTimes(1);
+    expect(after.mock.calls[0][1]).toEqual(lastJsonLog());
+  });
+
+  it('emits nested native Chrome command names and positional arguments', async () => {
+    const before = vi.fn(); const after = vi.fn(); onBeforeExecute(before); onAfterExecute(after);
+    await createProgram('', '').parseAsync(['node', 'opencli', 'browser', 'chrome', 'call', 'tabs.query', '[{}]']);
+    expect(before.mock.calls[0][0]).toMatchObject({ command: 'browser/chrome/call', args: { method: 'tabs.query', args: '[{}]' } });
+    expect(after).toHaveBeenCalledTimes(1);
+    expect(after.mock.calls[0][1]).toEqual({ closed: true });
+  });
+
+  it('reports handled native validation failures to the after hook', async () => {
+    const after = vi.fn(); onAfterExecute(after);
+    await createProgram('', '').parseAsync(['node', 'opencli', 'browser', 'chrome', 'call', 'tabs.query', 'invalid-json']);
+    expect(mockSendCommand).not.toHaveBeenCalled();
+    expect(after).toHaveBeenCalledTimes(1);
+    expect(after.mock.calls[0][0]).toMatchObject({ error: { code: 'invalid_args' }, finishedAt: expect.any(Number) });
+  });
+
+  it('reports browser connection failure to the after hook', async () => {
+    mockBrowserConnect.mockRejectedValueOnce(new Error('offline browser'));
+    const after = vi.fn(); onAfterExecute(after);
+    await createProgram('', '').parseAsync(['node', 'opencli', 'browser', '--session', 'test', 'open', 'https://example.com']);
+    expect(after).toHaveBeenCalledTimes(1);
+    expect(after.mock.calls[0][0]).toMatchObject({ error: { message: 'offline browser' } });
+    expect(browserState.page?.goto).not.toHaveBeenCalled();
+  });
+
+  it('preserves the non-blocking contract when a browser hook throws', async () => {
+    onBeforeExecute(() => { throw new Error('plugin failed'); });
+    const after = vi.fn(); onAfterExecute(after);
+    await createProgram('', '').parseAsync(['node', 'opencli', 'browser', '--session', 'test', 'open', 'https://example.com']);
+    expect(browserState.page?.goto).toHaveBeenCalledWith('https://example.com');
+    expect(after).toHaveBeenCalledTimes(1);
+    expect(after.mock.calls[0][0].error).toBeUndefined();
   });
 
   it('prints the resolved target ID when browser open creates or navigates a tab', async () => {

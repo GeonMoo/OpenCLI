@@ -109,7 +109,7 @@ describe('CDPBridge cookies', () => {
     vi.stubEnv('OPENCLI_CDP_ENDPOINT', 'ws://127.0.0.1:9222/devtools/page/1');
 
     const bridge = new CDPBridge();
-    const send = vi.spyOn(bridge, 'send').mockResolvedValue({});
+    const send = vi.spyOn(bridge, 'send').mockResolvedValue({ result: { value: 'visible' } });
 
     const page = await bridge.connect();
     send.mockClear();
@@ -126,7 +126,7 @@ describe('CDPBridge cookies', () => {
     await page.handleJavaScriptDialog!(true, 'ok');
     await page.cdp!('Page.getLayoutMetrics', {});
 
-    expect(send.mock.calls).toEqual([
+    expect(send.mock.calls.filter(([method]) => method !== 'Runtime.evaluate')).toEqual([
       ['Input.insertText', { text: 'hello' }],
       ['Input.dispatchKeyEvent', { type: 'keyDown', key: 'a', modifiers: 2 }],
       ['Input.dispatchKeyEvent', { type: 'keyUp', key: 'a', modifiers: 2 }],
@@ -136,6 +136,19 @@ describe('CDPBridge cookies', () => {
       ['Page.handleJavaScriptDialog', { accept: true, promptText: 'ok' }],
       ['Page.getLayoutMetrics', {}],
     ]);
+  });
+
+  it.each(['hidden', 'prerender', undefined])('blocks native input when visibility is %s', async visibility => {
+    vi.stubEnv('OPENCLI_CDP_ENDPOINT', 'ws://127.0.0.1:9222/devtools/page/1');
+    const bridge = new CDPBridge();
+    const send = vi.spyOn(bridge, 'send').mockResolvedValue({ result: { value: visibility } });
+    const page = await bridge.connect();
+    send.mockClear();
+    await expect(page.nativeClick!(10, 20)).rejects.toMatchObject({ code: 'COMMAND_EXEC' });
+    await expect(page.nativeKeyPress!('Enter')).rejects.toMatchObject({ code: 'COMMAND_EXEC' });
+    await expect(page.pressKey('Enter')).rejects.toMatchObject({ code: 'COMMAND_EXEC' });
+    expect(send.mock.calls.every(([method]) => method === 'Runtime.evaluate')).toBe(true);
+    await bridge.close();
   });
 
   it('captures request headers and bounded post data on direct CDP pages', async () => {

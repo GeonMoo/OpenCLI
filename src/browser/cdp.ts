@@ -566,6 +566,9 @@ function scoreCDPTarget(target: CDPTarget, preferredPattern?: RegExp): number {
 
   if (!haystack.trim() && !type) return Number.NEGATIVE_INFINITY;
   if (haystack.includes('devtools')) return Number.NEGATIVE_INFINITY;
+  // Chrome exposes browser UI targets (e.g. the toolbar) alongside real tabs.
+  // They cannot be navigated and must never outrank an about:blank page.
+  if (/^chrome(?:-untrusted)?:\/\/[^/]*\.top-chrome(?:\/|$)/.test(url)) return Number.NEGATIVE_INFINITY;
   if (type === 'background_page' || type === 'service_worker') return Number.NEGATIVE_INFINITY;
 
   let score = 0;

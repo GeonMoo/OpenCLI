@@ -15,7 +15,7 @@ import { buildEvaluateExpression } from './utils.js';
 import { saveBase64ToFile } from '../utils.js';
 import { generateStealthJs } from './stealth.js';
 import { waitForDomStableJs } from './dom-helpers.js';
-import { CDPBasePage } from './base-page.js';
+import { CDPBasePage, NativeInputVisibilityError } from './base-page.js';
 import { classifyBrowserError } from './errors.js';
 import { CommandExecutionError } from '../errors.js';
 import { log } from '../logger.js';
@@ -367,6 +367,7 @@ export class Page extends CDPBasePage {
 
   /** Precise click using DOM.getContentQuads/getBoxModel for inline elements */
   async clickWithQuads(ref: string): Promise<void> {
+    await this.assertNativeInputVisible();
     const safeRef = JSON.stringify(ref);
     const cssSelector = `[data-opencli-ref="${ref.replace(/"/g, '\\"')}"]`;
 
@@ -401,7 +402,10 @@ export class Page extends CDPBasePage {
           await this.nativeClick(Math.round(cx), Math.round(cy));
           return;
         }
-      } catch { /* fallthrough */ }
+      } catch (error) {
+        if (error instanceof NativeInputVisibilityError) throw error;
+        // Fall through for unsupported geometry lookup.
+      }
 
       // Try getBoxModel
       try {
@@ -413,8 +417,14 @@ export class Page extends CDPBasePage {
           await this.nativeClick(Math.round(cx), Math.round(cy));
           return;
         }
-      } catch { /* fallthrough */ }
-    } catch { /* fallthrough */ }
+      } catch (error) {
+        if (error instanceof NativeInputVisibilityError) throw error;
+        // Fall through for unsupported geometry lookup.
+      }
+    } catch (error) {
+      if (error instanceof NativeInputVisibilityError) throw error;
+      // Fall through for unsupported DOM lookup.
+    }
 
     // Final fallback: regular click
     await this.evaluate(`

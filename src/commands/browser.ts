@@ -23,7 +23,8 @@ import type { BrowserWindowMode } from '../runtime.js';
 import type { BrowserDownloadWaitResult, IPage, ScreenshotOptions } from '../types.js';
 
 
-import { emitFailure, emitResult } from '../command-output.js';
+import { emitHook, type HookContext } from '../hooks.js';
+import { captureCommandOutput, type CommandOutputCapture, emitFailure, emitResult } from '../command-output.js';
 const BROWSER_TAB_OPTION_DESCRIPTION = 'Target tab/page identity returned by "browser open", "browser tab new", or "browser tab list"';
 const FOLLOW_POLL_MS = 1_000;
 
@@ -505,9 +506,34 @@ export function registerBrowserCommands(program: Command): Command {
     if (err.hint) log.error(`Hint: ${err.hint}`);
   }
 
+  function browserLifecycle<Args extends unknown[]>(action: (...args: Args) => Promise<unknown>) {
+    return async (...args: Args) => {
+      const command = args.at(-1) instanceof Command ? args.at(-1) as Command : undefined;
+      const names: string[] = [];
+      for (let node = command; node && node !== browser; node = node.parent ?? undefined) names.unshift(node.name());
+      const hookArgs: Record<string, unknown> = { ...command?.optsWithGlobals() };
+      command?.registeredArguments.forEach((argument, index) => {
+        hookArgs[argument.name()] = command.processedArgs[index];
+      });
+      const context: HookContext = { command: ['browser', ...names].join('/'), args: hookArgs, startedAt: Date.now() };
+      const output: CommandOutputCapture = {};
+      await emitHook('onBeforeExecute', context);
+      try {
+        await captureCommandOutput(output, () => action(...args));
+      } catch (error) {
+        context.error = error;
+        throw error;
+      } finally {
+        context.error ??= output.error;
+        context.finishedAt = Date.now();
+        await emitHook('onAfterExecute', context, output.result);
+      }
+    };
+  }
+
   /** Wrap browser actions with error handling and optional --json output */
   function browserAction<Args extends unknown[]>(fn: (page: Awaited<ReturnType<typeof getBrowserPage>>, ...args: Args) => Promise<unknown>) {
-    return async (...args: Args) => {
+    return browserLifecycle(async (...args: Args) => {
       let page: Awaited<ReturnType<typeof getBrowserPage>> | null = null;
       try {
         const command = args.at(-1) instanceof Command ? args.at(-1) as Command : undefined;
@@ -521,7 +547,7 @@ export function registerBrowserCommands(program: Command): Command {
         if (isJavaScriptDialogMessage(getErrorMessage(err))) emitJavaScriptDialogError(getErrorMessage(err));
         else emitFailure(err);
       }
-    };
+    });
   }
 
   type BrowserSessionCommandContext = {
@@ -530,7 +556,7 @@ export function registerBrowserCommands(program: Command): Command {
   };
 
   function browserSessionCommandAction(fn: (ctx: BrowserSessionCommandContext) => Promise<void>) {
-    return async (optsOrCommand: unknown, maybeCommand?: Command) => {
+    return browserLifecycle(async (optsOrCommand: unknown, maybeCommand?: Command) => {
       const command = optsOrCommand instanceof Command ? optsOrCommand : maybeCommand;
       try {
         const session = getBrowserSession(command);
@@ -541,7 +567,7 @@ export function registerBrowserCommands(program: Command): Command {
         await bridge.connect({ timeout: DEFAULT_BROWSER_CONNECT_TIMEOUT, session, surface: 'browser', ...profileRouteParams(profileSelection) });
         await fn({ session, contextId });
       } catch (err) { emitFailure(err); }
-    };
+    });
   }
 
   browser.command('bind')
@@ -792,7 +818,7 @@ export function registerBrowserCommands(program: Command): Command {
 
   // ── Native Chrome management ──
   const nativeChrome = browser.command('chrome').description('Manage native Chrome tabs, groups and windows without attaching a page');
-  const nativeAction = (mode: 'chrome-call' | 'chrome-describe') => async (...args: any[]) => {
+  const nativeAction = (mode: 'chrome-call' | 'chrome-describe') => browserLifecycle(async (...args: any[]) => {
     try {
       const command = args.at(-1) as Command;
       const method = args[0] as string | undefined;
@@ -807,7 +833,7 @@ export function registerBrowserCommands(program: Command): Command {
       const err = error as Error & { code?: string };
       emitFailure(err instanceof SyntaxError ? { code: 'invalid_args', message: err.message, exitCode: 2 } : err);
     }
-  };
+  });
   nativeChrome.command('describe').argument('[method]').description('List supported methods or inspect signature and live permissions').action(nativeAction('chrome-describe'));
   nativeChrome.command('call').argument('<method>').argument('[args]', 'JSON array of native positional arguments', '[]')
     .description('Call a Chrome browser-management method; created resources persist').action(nativeAction('chrome-call'));

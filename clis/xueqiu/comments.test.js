@@ -80,7 +80,7 @@ describe('xueqiu comments', () => {
             contentType: 'text/html',
             json: null,
             textSnippet: '<html><body>server error</body></html>',
-        })).toMatchObject({ kind: 'unknown' });
+        })).toMatchObject({ kind: 'incompatible' });
     });
     it('classifies html login pages as auth failures', () => {
         expect(classifyXueqiuCommentsResponse({
@@ -447,4 +447,13 @@ describe('xueqiu comments', () => {
         expect(mockWarn).toHaveBeenCalledWith(expect.stringContaining('10/12'));
         expect(mockWarn).toHaveBeenCalledWith(expect.stringContaining('reached safety cap'));
     });
+});
+
+it('reports HTTP and JSON shape without claiming verbose prints raw data', async () => {
+    await expect(collectCommentRows({symbol:'SH600519',limit:1,maxRequests:1,pageSize:1,fetchPage:async()=>({status:200,contentType:'application/json',json:{unexpected:'PRIVATE'},textSnippet:'PRIVATE'})})).rejects.toMatchObject({
+        code:'COMMAND_EXEC', message:expect.stringContaining('keys=[unexpected]'), hint:expect.stringContaining('browser Network'),
+    });
+});
+it('never accepts discussion rows from an HTTP error response', async () => {
+    await expect(collectCommentRows({symbol:'SH600519',limit:1,maxRequests:1,pageSize:1,fetchPage:async()=>({status:429,contentType:'application/json',json:{list:[{id:'1',text:'cached'}]},textSnippet:''})})).rejects.toMatchObject({code:'COMMAND_EXEC',message:expect.stringContaining('HTTP 429')});
 });

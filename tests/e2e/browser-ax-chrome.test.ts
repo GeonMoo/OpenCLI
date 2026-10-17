@@ -409,6 +409,7 @@ describe('Browser Bridge AX real Chrome smoke', () => {
         };
         if (backend === 'direct') {
           await page.goto(new URL('/same-frame', site!.url).href);
+          expect(await page.evaluate('location.href')).toBe(new URL('/same-frame', site!.url).href);
           await page.startNetworkCapture?.('capture-');
           await page.evaluate(script);
         } else {
@@ -420,13 +421,15 @@ describe('Browser Bridge AX real Chrome smoke', () => {
           ? await page.readNetworkCapture?.({ retainIncomplete: true })
           : await command({ action: 'network-capture-read', retainIncomplete: true })) as Array<Record<string, unknown>>;
         const poll = async (complete: boolean) => {
+          let lastEntries: Array<Record<string, unknown>> = [];
           for (let i = 0; i < 100; i++) {
             const entries = await read();
+            lastEntries = entries;
             const entry = entries.find(item => item.responseStatus === 200 && (item.captureComplete === true) === complete);
             if (entry) { expect(entries).toHaveLength(1); return entry; }
             await new Promise(resolve => setTimeout(resolve, 50));
           }
-          throw new Error(`${backend}: missing ${complete ? 'completed' : 'incomplete'} capture`);
+          throw new Error(`${backend}: missing ${complete ? 'completed' : 'incomplete'} capture: ${JSON.stringify(lastEntries)}`);
         };
         const early = await poll(false);
         expect(early.responsePreview).toBeUndefined();

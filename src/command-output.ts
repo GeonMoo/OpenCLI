@@ -1,7 +1,21 @@
 /** CLI wire format. Human-readable exports remain available through --format. */
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { toEnvelope, type ErrorEnvelope } from './errors.js';
 
+export interface CommandOutputCapture {
+  result?: unknown;
+  error?: unknown;
+}
+const outputCapture = new AsyncLocalStorage<CommandOutputCapture>();
+
+/** Capture the last emitted result and any failure without changing wire output. */
+export function captureCommandOutput<T>(capture: CommandOutputCapture, action: () => Promise<T>): Promise<T> {
+  return outputCapture.run(capture, action);
+}
+
 export function emitResult(data: unknown): void {
+  const capture = outputCapture.getStore();
+  if (capture) capture.result = data;
   console.log(JSON.stringify({ ok: true, data: data ?? null }));
 }
 
@@ -28,6 +42,8 @@ export function emitFailure(error: unknown, exitCode?: number): void {
   if (envelope.error.code === 'usage_error' || envelope.error.code.startsWith('commander.')) envelope.error.exitCode = 2;
   if (exitCode !== undefined) envelope.error.exitCode = exitCode;
   if (envelope.error.code === 'UNKNOWN' && envelope.error.exitCode === 2) envelope.error.code = 'usage_error';
+  const capture = outputCapture.getStore();
+  if (capture) capture.error = envelope.error;
   console.log(JSON.stringify(envelope));
   process.exitCode = envelope.error.exitCode || 1;
 }

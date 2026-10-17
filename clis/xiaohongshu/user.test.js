@@ -95,3 +95,77 @@ describe('assertReadableUserSnapshot (既有契约保持)', () => {
         expect(() => assertReadableUserSnapshot(NOTES_SNAP)).not.toThrow();
     });
 });
+
+describe('offline user pagination', () => {
+    const command = getRegistry().get('xiaohongshu/user');
+    const notes = ids => snap({ noteGroups: [ids.map(noteEntry)] });
+
+    it('loads 1000 unique notes beyond four scrolls', async () => {
+        let count = 20;
+        const page = createPageMock(vi.fn(async () => notes(Array.from({ length: count }, (_, i) => String(i)))));
+        page.autoScroll.mockImplementation(async () => { count += 20; });
+        const rows = await command.func(page, { id: 'offline', limit: 1000, timeout: 300 });
+        expect(rows).toHaveLength(1000);
+        expect(new Set(rows.map(row => row.id)).size).toBe(1000);
+        expect(page.autoScroll).toHaveBeenCalledTimes(49);
+        expect(page.wait).toHaveBeenCalledWith({ time: 2 });
+    });
+
+    it('tolerates two stagnant reads and retains notes when the store replaces visible rows', async () => {
+        const page = createPageMock(vi.fn()
+            .mockResolvedValueOnce(notes(['a']))
+            .mockResolvedValueOnce(notes(['a']))
+            .mockResolvedValueOnce(notes(['a']))
+            .mockResolvedValueOnce(notes(['b']))
+            .mockResolvedValueOnce(notes(['b']))
+            .mockResolvedValueOnce(notes(['c'])));
+        const rows = await command.func(page, { id: 'offline', limit: 3 });
+        expect(rows.map(row => row.id)).toEqual(['a', 'b', 'c']);
+        expect(page.autoScroll).toHaveBeenCalledTimes(5);
+    });
+
+    it('stops after three consecutive stagnant scrolls even when duplicates multiply', async () => {
+        const page = createPageMock(vi.fn().mockResolvedValue(notes(['a', 'a', 'a'])));
+        expect(await command.func(page, { id: 'offline', limit: 1000 })).toHaveLength(1);
+        expect(page.autoScroll).toHaveBeenCalledTimes(3);
+    });
+
+    it('does not hide a login wall or malformed store behind previously collected notes', async () => {
+        for (const invalid of [LOGIN_WALL_SNAP, NO_STORE_SNAP]) {
+            const page = createPageMock(vi.fn().mockResolvedValueOnce(NOTES_SNAP).mockResolvedValue(invalid));
+            await expect(command.func(page, { id: 'offline', limit: 5 })).rejects.toMatchObject({ code: invalid.loginWall ? 'AUTH_REQUIRED' : 'COMMAND_EXEC' });
+        }
+    });
+
+    it('validates limit and timeout before any browser work', async () => {
+        for (const kwargs of [{ limit: 0 }, { limit: 1001 }, { limit: 1.5 }, { timeout: 0 }, { timeout: 1801 }]) {
+            const page = createPageMock(vi.fn());
+            await expect(command.func(page, { id: 'offline', ...kwargs })).rejects.toMatchObject({ code: 'ARGUMENT' });
+            expect(page.goto).not.toHaveBeenCalled();
+        }
+    });
+
+    it('stops before starting another scroll after exhausting the time budget', async () => {
+        let now = 0;
+        const clock = vi.spyOn(Date, 'now').mockImplementation(() => now);
+        try {
+            const page = createPageMock(vi.fn().mockResolvedValue(NOTES_SNAP));
+            page.autoScroll.mockImplementation(async () => { now += 1500; });
+            page.wait.mockImplementation(async options => { now += options.time * 1000; });
+            expect(await command.func(page, { id: 'offline', limit: 1000, timeout: 5 })).toHaveLength(1);
+            expect(page.autoScroll).toHaveBeenCalledTimes(1);
+        } finally { clock.mockRestore(); }
+    });
+
+    it('does not continue hydration reads after the timeout', async () => {
+        let now = 0;
+        const clock = vi.spyOn(Date, 'now').mockImplementation(() => now);
+        try {
+            const page = createPageMock(vi.fn().mockResolvedValue(NO_STORE_SNAP));
+            page.wait.mockImplementation(async options => { now += options.time * 1000; });
+            await expect(command.func(page, { id: 'offline', limit: 5, timeout: 1 })).rejects.toMatchObject({ code: 'TIMEOUT' });
+            expect(page.evaluate).toHaveBeenCalledTimes(1);
+            expect(page.autoScroll).not.toHaveBeenCalled();
+        } finally { clock.mockRestore(); }
+    });
+});

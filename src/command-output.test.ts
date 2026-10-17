@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { emitFailure, emitResult } from './command-output.js';
+import { captureCommandOutput, type CommandOutputCapture, emitFailure, emitResult } from './command-output.js';
 import { CliError } from './errors.js';
 let output: ReturnType<typeof vi.spyOn>;
 beforeEach(() => { output = vi.spyOn(console, 'log').mockImplementation(() => {}); process.exitCode = undefined; });
@@ -39,4 +39,17 @@ describe('CLI result contract', () => {
     emitFailure({ code, message: 'Inspect state before retrying' });
     expect(result().error.outcome).toBe('unknown');
   });
+});
+
+it('isolates concurrent output captures and does not retain unrelated output', async () => {
+  const first: CommandOutputCapture = {}, second: CommandOutputCapture = {};
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const pending = captureCommandOutput(first, async () => { emitResult('first'); await gate; emitResult('last'); });
+  await captureCommandOutput(second, async () => { emitFailure(new CliError('TEST', 'failure')); release(); });
+  await pending;
+  emitResult('outside');
+  expect(first).toEqual({ result: 'last' });
+  expect(second).toMatchObject({ error: { code: 'TEST', message: 'failure' } });
+  expect(second.result).toBeUndefined();
 });

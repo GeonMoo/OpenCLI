@@ -57,6 +57,20 @@ describe('browser helpers', () => {
     expect(target?.webSocketDebuggerUrl).toBe('ws://127.0.0.1:9224/app');
   });
 
+  it.each(['page', 'other'])('excludes Chrome toolbar targets reported as %s', (type) => {
+    vi.stubEnv('OPENCLI_CDP_TARGET', 'toolbar');
+    const toolbar = {
+      type,
+      title: 'Toolbar',
+      url: 'chrome://webui-toolbar.top-chrome/',
+      webSocketDebuggerUrl: 'ws://127.0.0.1:9222/toolbar',
+    };
+    const blank = { type: 'page', url: 'about:blank', webSocketDebuggerUrl: 'ws://127.0.0.1:9222/blank' };
+    expect(cdpTest.selectCDPTarget([toolbar, blank])).toBe(blank);
+    expect(cdpTest.selectCDPTarget([toolbar])).toBeUndefined();
+    expect(cdpTest.selectCDPTarget([{ ...toolbar, url: 'chrome-untrusted://side-panel.top-chrome/' }, blank])).toBe(blank);
+  });
+
   it('honors OPENCLI_CDP_TARGET when multiple inspectable targets exist', () => {
     vi.stubEnv('OPENCLI_CDP_TARGET', 'docs');
 

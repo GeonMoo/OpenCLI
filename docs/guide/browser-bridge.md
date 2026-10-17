@@ -134,3 +134,15 @@ The daemon is persistent — it stays alive until you explicitly stop it (`openc
 ## Running OpenCLI from a remote machine
 
 If you need to run `opencli` on a remote server (CI runner, agent host) but keep the browser session on your local machine, see [Remote Orchestration](/guide/remote-orchestration). It walks through the SSH reverse-tunnel pattern so the daemon never leaves localhost.
+
+
+### Native input and hidden pages
+
+Native click, key, hover, double-click and drag actions require the target page
+to report `document.visibilityState === 'visible'`. If Chrome reports a hidden
+page (for example a background tab or a minimized/occluded window), OpenCLI
+returns `COMMAND_EXEC` before dispatching native input. Visibility-check failures
+also stop the action. Select the intended tab and restore/uncover its window,
+then retry. OpenCLI does not automatically focus the window or replay a blocked
+native action through synthetic DOM events. Visibility is a precondition, not a
+verification that the application completed the requested action.

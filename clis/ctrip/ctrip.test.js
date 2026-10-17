@@ -66,7 +66,8 @@ function createPageMock(evaluateResults, networkCaptures = []) {
         startNetworkCapture: vi.fn().mockResolvedValue(true),
         readNetworkCapture: vi.fn()
             .mockResolvedValueOnce([])
-            .mockResolvedValueOnce(networkCaptures),
+            .mockResolvedValueOnce(networkCaptures)
+            .mockResolvedValue([]),
     };
 }
 
@@ -625,7 +626,52 @@ describe('ctrip flight command (registry-level)', () => {
         await expect(cmd.func(createPageMock([], [batchCapture({}, { responseBodyTruncated: true })]), args))
             .rejects.toMatchObject({ code: 'COMMAND_EXEC', message: expect.stringContaining('capture limit') });
         await expect(cmd.func(createPageMock([], [batchCapture(batchPayload([itinerary()], { finished: false }))]), args))
-            .rejects.toMatchObject({ code: 'COMMAND_EXEC', message: expect.stringContaining('reported completion') });
+            .rejects.toMatchObject({ code: 'TIMEOUT' });
+    });
+
+    it('defaults to foreground for visibility-gated flight loading', () => {
+        expect(cmd.defaultWindowMode).toBe('foreground');
+    });
+
+    it('waits through a slow incomplete response and an unfinished batch without DOM cards', async () => {
+        const page = createPageMock([]);
+        const pending = batchCapture({}, { requestId: 'a', captureComplete: false, responsePreview: undefined });
+        const first = batchCapture(batchPayload([itinerary()], { finished: false }), { requestId: 'a', captureComplete: true });
+        const last = batchCapture(batchPayload([itinerary({ id: 'second', price: 499 })]), { requestId: 'b', captureComplete: true });
+        page.readNetworkCapture.mockReset().mockResolvedValueOnce([]);
+        for (let i = 0; i < 14; i++) page.readNetworkCapture.mockResolvedValueOnce([pending]);
+        page.readNetworkCapture.mockResolvedValueOnce([first]).mockResolvedValueOnce([last]);
+        const rows = await cmd.func(page, { from: 'PEK', to: 'SHA', date: '2026-06-15', limit: 5 });
+        expect(rows).toHaveLength(2);
+        expect(page.wait).toHaveBeenCalledTimes(15);
+        expect(page.wait).toHaveBeenCalledWith({ time: 1 });
+        expect(page.readNetworkCapture).toHaveBeenCalledWith({ retainIncomplete: true });
+        expect(page.evaluate.mock.calls.every(([script]) => !script.includes('.flight-item'))).toBe(true);
+    });
+
+    it('waits for an earlier body even when the final batch completes first', async () => {
+        const page = createPageMock([]);
+        const pending = batchCapture({}, { requestId: 'first', captureComplete: false, responsePreview: undefined });
+        const last = batchCapture(batchPayload([itinerary({ id: 'last' })]), { requestId: 'last', captureComplete: true });
+        const first = batchCapture(batchPayload([itinerary({ id: 'first' })], { finished: false }), { requestId: 'first', captureComplete: true });
+        page.readNetworkCapture.mockReset().mockResolvedValueOnce([]).mockResolvedValueOnce([pending, last]).mockResolvedValueOnce([first]);
+        const rows = await cmd.func(page, { from: 'PEK', to: 'SHA', date: '2026-06-15', limit: 5 });
+        expect(rows).toHaveLength(2); expect(page.wait).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not accept a stale or foreign-origin batch', async () => {
+        const page = createPageMock([], [
+            batchCapture(batchPayload([itinerary()]), { timestamp: 1 }),
+            batchCapture(batchPayload([itinerary()]), { url: 'https://evil.invalid/international/search/api/search/batchSearch' }),
+        ]);
+        await expect(cmd.func(page, { from: 'PEK', to: 'SHA', date: '2026-06-15', limit: 5 })).rejects.toMatchObject({ code: 'TIMEOUT' });
+    });
+
+    it('decodes completed base64 captures and rejects unavailable completed bodies', async () => {
+        const encoded = 'base64:' + Buffer.from(JSON.stringify(batchPayload([itinerary()]))).toString('base64');
+        const args = { from: 'PEK', to: 'SHA', date: '2026-06-15', limit: 5 };
+        expect(await cmd.func(createPageMock([], [batchCapture({}, { responsePreview: encoded })]), args)).toHaveLength(1);
+        await expect(cmd.func(createPageMock([], [batchCapture({}, { captureComplete: true, responsePreview: undefined })]), args)).rejects.toThrow(/unavailable/);
     });
 
     it('builds URL with lowercase IATA codes and Y_S_C_F cabin', async () => {
