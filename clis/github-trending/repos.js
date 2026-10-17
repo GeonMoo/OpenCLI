@@ -96,7 +96,7 @@ function parseTrendingHtml(html, limit) {
     return rows;
 }
 
-cli({
+export const trendingCommand = cli({
     site: 'github-trending',
     name: 'repos',
     access: 'read',

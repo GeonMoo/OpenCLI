@@ -146,6 +146,7 @@ Run `opencli list` for the live registry.
 | **[defillama](./browser/defillama.md)**           | `protocols` `protocol`                                                                                                                         | 🌐 Public    |
 | **[endoflife](./browser/endoflife.md)**           | `product`                                                                                                                                      | 🌐 Public    |
 | **[osv](./browser/osv.md)**                       | `vulnerability` `query`                                                                                                                        | 🌐 Public    |
+| **[github](./browser/github.md)** | `search` `trend` `stars` `login` `whoami` | 🌐 / 🔐 |
 | **[github-trending](./browser/github-trending.md)** | `repos`                                                                                                                                       | 🌐 Public    |
 | **[goproxy](./browser/goproxy.md)**               | `module` `versions`                                                                                                                            | 🌐 Public    |
 | **[tvmaze](./browser/tvmaze.md)**                 | `search` `show`                                                                                                                                | 🌐 Public    |
