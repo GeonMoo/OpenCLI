@@ -15439,6 +15439,96 @@
     "siteSession": "persistent"
   },
   {
+    "site": "hgface",
+    "name": "papers",
+    "description": "List Hugging Face daily papers or papers for a specific day or month",
+    "access": "read",
+    "domain": "huggingface.co",
+    "strategy": "public",
+    "browser": false,
+    "args": [
+      {
+        "name": "date",
+        "type": "str",
+        "required": false,
+        "positional": true,
+        "help": "YYYY-MM-DD or YYYY-MM; omit for the latest daily papers"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 10,
+        "required": false,
+        "help": "Number of papers (1-100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "id",
+      "title",
+      "upvotes",
+      "authors",
+      "publishedAt",
+      "summary",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "hgface/papers.js",
+    "sourceFile": "hgface/papers.js"
+  },
+  {
+    "site": "hgface",
+    "name": "search",
+    "description": "Search Hugging Face models, datasets or Spaces by name or owner",
+    "access": "read",
+    "domain": "huggingface.co",
+    "strategy": "public",
+    "browser": false,
+    "args": [
+      {
+        "name": "query",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Name or owner to search for"
+      },
+      {
+        "name": "class",
+        "type": "string",
+        "default": "model",
+        "required": false,
+        "help": "Search category: model, dataset or space",
+        "choices": [
+          "model",
+          "dataset",
+          "space"
+        ]
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 10,
+        "required": false,
+        "help": "Number of results (1-100)"
+      }
+    ],
+    "columns": [
+      "rank",
+      "class",
+      "id",
+      "author",
+      "downloads",
+      "likes",
+      "pipelineTag",
+      "sdk",
+      "lastModified",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "hgface/search.js",
+    "sourceFile": "hgface/search.js"
+  },
+  {
     "site": "hltv",
     "name": "event-matches",
     "description": "Read visible HLTV stats match rows for a specific event",

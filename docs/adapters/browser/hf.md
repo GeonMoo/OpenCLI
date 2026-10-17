@@ -6,6 +6,8 @@
 
 | Command | Description |
 |---------|-------------|
+| `opencli hgface search "QUERY" --class model` | Search model, dataset or space names/owners |
+| `opencli hgface papers [DATE]` | Papers for `YYYY-MM-DD`, `YYYY-MM`, or the latest daily listing |
 | `opencli hf top` | Top upvoted Hugging Face papers |
 | `opencli hf paper <arxivId>` | Single paper detail (title / authors / summary / AI keywords / upvotes) |
 | `opencli hf models` | Top Hugging Face models (downloads / likes / trending / freshness) |
@@ -15,6 +17,16 @@
 ## Usage Examples
 
 ```bash
+# Unified search (model is the default class)
+opencli hgface search "Qwen" --class model --limit 10
+opencli hgface search "fineweb" --class dataset -f json
+opencli hgface search "flux" --class space -f json
+
+# Daily and historical monthly papers
+opencli hgface papers "2026-10-16" -f json
+opencli hgface papers "2026-10" --limit 20 -f json
+opencli hgface papers
+
 # Today's top papers
 opencli hf top --limit 10
 
@@ -50,6 +62,20 @@ opencli hf spaces --sdk gradio --search llm --limit 10
 # JSON output
 opencli hf top -f json
 ```
+
+## Unified search and dated papers
+
+`hgface search` follows the `github search` command shape: a required positional query and a category option. Use the standard double-dash `--class model|dataset|space`. Search matches repository names or owners, rather than full README text. Both new commands default to 10 results and accept `--limit 1-100`; they need no browser or login. Existing `hf` commands remain available.
+
+Search returns `rank`, `class`, `id`, `author`, `downloads`, `likes`, `pipelineTag`, `sdk`, `lastModified`, and `url`. Fields that do not apply to a category are `null`.
+
+Papers accepts an optional calendar day or month, validates the date, and preserves the API's ranking. It returns full titles and summaries, plus `rank`, `id`, `upvotes`, `authors`, `publishedAt`, and `url`. A month selects the corresponding Hugging Face monthly listing; it does not filter arXiv publication dates. `publishedAt` is the paper's publication timestamp and may fall outside the selected day or month. Empty results raise an empty-result error; malformed responses and HTTP failures raise execution errors.
+
+### Data source strategy
+
+**PUBLIC_API / stable**: anonymous JSON requests to the official Hub `/api/models`, `/api/datasets`, and `/api/spaces` endpoints with `search`, `full=true`, and `limit`; papers uses `/api/daily_papers` with either `date=YYYY-MM-DD` or `month=YYYY-MM`. See the [official Hub API documentation](https://huggingface.co/docs/hub/en/api), [OpenAPI schema](https://huggingface.co/.well-known/openapi.json), and [search guide](https://huggingface.co/docs/huggingface_hub/main/en/guides/search). Live requests returned HTTP 200 and non-empty arrays for all three classes and both date selectors. Historical months and explicit limits were checked separately. No browser cookies or internal signed endpoints are used.
+
+## Existing `hf` options
 
 ### `top` Options
 
