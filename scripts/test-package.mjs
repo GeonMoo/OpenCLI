@@ -54,7 +54,7 @@ try {
     }
     assert.equal(runCli('--version').trim(), pkg.version);
     assert.match(runCli('--help'), /Usage:/);
-    assert.match(runCli('list', '-f', 'json'), /hackernews/);
+    assert.match(runCli('list', '--site', 'hackernews', '-f', 'json'), /hackernews/);
     assert.match(runCli('liepin', 'search', '--help'), /Usage:/);
     assert.match(runCli('--get-completions', '--cursor', '0'), /hackernews/);
 
