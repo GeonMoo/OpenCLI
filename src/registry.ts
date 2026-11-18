@@ -24,8 +24,9 @@ export interface Arg {
 }
 
 export type CommandArgs = Record<string, any>;
+export type TerminalPresentation = { columns: number; colorDepth: number };
 export type BrowserCommandFunc = (page: IPage, kwargs: CommandArgs, debug?: boolean) => Promise<unknown>;
-export type NonBrowserCommandFunc = (kwargs: CommandArgs, debug?: boolean) => Promise<unknown>;
+export type NonBrowserCommandFunc = (kwargs: CommandArgs, debug?: boolean, terminal?: TerminalPresentation) => Promise<unknown>;
 export type CommandAccess = 'read' | 'write';
 export type SiteSessionMode = 'ephemeral' | 'persistent';
 
@@ -73,6 +74,8 @@ interface BaseCliCommand {
   defaultWindowMode?: 'foreground' | 'background';
   /** Override the default CLI output format when the user does not pass -f/--format. */
   defaultFormat?: 'table' | 'plain' | 'json' | 'yaml' | 'yml' | 'md' | 'markdown' | 'csv';
+  /** Presentation format for interactive stdout when --format is omitted. */
+  terminalFormat?: 'plain' | 'table';
   /** Optional auth-status metadata attached by shared auth adapters. */
   authStatus?: AuthStatusMetadata;
 }
@@ -149,6 +152,7 @@ export function cli(opts: CliOptions): CliCommand {
     siteSession: opts.siteSession,
     defaultWindowMode: opts.defaultWindowMode,
     defaultFormat: opts.defaultFormat,
+    terminalFormat: opts.terminalFormat,
     authStatus: opts.authStatus,
   };
 

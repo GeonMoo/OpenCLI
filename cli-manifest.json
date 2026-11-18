@@ -20018,6 +20018,80 @@
     "defaultWindowMode": "foreground"
   },
   {
+    "site": "kaggle",
+    "name": "list",
+    "description": "List Kaggle competitions by status and category",
+    "access": "read",
+    "example": "opencli kaggle list --tags active/featured",
+    "domain": "www.kaggle.com",
+    "strategy": "public",
+    "browser": false,
+    "args": [
+      {
+        "name": "tags",
+        "type": "string",
+        "default": "active/featured",
+        "required": false,
+        "valueRequired": true,
+        "help": "Combine one status (active, completed, all), one category (featured, research, getting-started, playground, community), and optional hackathons or simulations with / or comma"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "Maximum competitions (1–100)"
+      }
+    ],
+    "columns": [
+      "title",
+      "description",
+      "category",
+      "teams",
+      "timeLeft",
+      "prize",
+      "deadline",
+      "url"
+    ],
+    "type": "js",
+    "modulePath": "kaggle/list.js",
+    "sourceFile": "kaggle/list.js"
+  },
+  {
+    "site": "kaggle",
+    "name": "progress",
+    "description": "Compare Kaggle competition dates on a shared UTC timeline",
+    "access": "read",
+    "example": "opencli kaggle progress --tags active/featured",
+    "domain": "www.kaggle.com",
+    "strategy": "public",
+    "browser": false,
+    "args": [
+      {
+        "name": "tags",
+        "type": "string",
+        "default": "active/featured",
+        "required": false,
+        "valueRequired": true,
+        "help": "Combine one status (active, completed, all), one category (featured, research, getting-started, playground, community), and optional hackathons or simulations with / or comma"
+      },
+      {
+        "name": "limit",
+        "type": "int",
+        "default": 20,
+        "required": false,
+        "help": "Maximum competitions (1–100)"
+      }
+    ],
+    "columns": [
+      "text"
+    ],
+    "terminalFormat": "plain",
+    "type": "js",
+    "modulePath": "kaggle/progress.js",
+    "sourceFile": "kaggle/progress.js"
+  },
+  {
     "site": "ke",
     "name": "chengjiao",
     "description": "贝壳找房成交记录",

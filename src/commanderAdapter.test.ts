@@ -345,6 +345,29 @@ describe('commanderAdapter default formats', () => {
       expect.objectContaining({ fmt: 'json' }),
     );
   });
+
+  it.each([
+    { isTTY: true, flags: [], fmt: 'plain' },
+    { isTTY: true, flags: ['-f', 'json'], fmt: 'json' },
+    { isTTY: false, flags: [], fmt: 'json' },
+  ])('renders $fmt with isTTY=$isTTY and flags=$flags', async ({ isTTY, flags, fmt }) => {
+    const previous = Object.getOwnPropertyDescriptor(process.stdout, 'isTTY');
+    Object.defineProperty(process.stdout, 'isTTY', { value: isTTY, configurable: true });
+    try {
+      const program = new Command();
+      registerCommandToProgram(program.command('gemini'), { ...cmd, terminalFormat: 'plain' });
+      await program.parseAsync(['node', 'opencli', 'gemini', 'ask', ...flags]);
+      expect(mockRenderOutput).toHaveBeenCalledWith([{ response: 'hello' }], expect.objectContaining({ fmt }));
+      if (fmt === 'plain') {
+        expect(mockExecuteCommand.mock.calls[0][3].terminal).toMatchObject({ columns: expect.any(Number), colorDepth: expect.any(Number) });
+      } else {
+        expect(mockExecuteCommand.mock.calls[0][3]).not.toHaveProperty('terminal');
+      }
+    } finally {
+      if (previous) Object.defineProperty(process.stdout, 'isTTY', previous);
+      else Reflect.deleteProperty(process.stdout, 'isTTY');
+    }
+  });
 });
 
 describe('commanderAdapter output files', () => {

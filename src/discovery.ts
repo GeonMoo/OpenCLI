@@ -144,6 +144,7 @@ async function loadFromManifest(manifestPath: string, clisDir: string): Promise<
         args: entry.args ?? [],
         columns: entry.columns,
         defaultFormat: entry.defaultFormat,
+        terminalFormat: entry.terminalFormat,
         pipeline: entry.pipeline,
         source: entry.sourceFile ? path.resolve(clisDir, entry.sourceFile) : modulePath,
         navigateBefore: entry.navigateBefore,

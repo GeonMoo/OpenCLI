@@ -115,12 +115,16 @@ export function registerCommandToProgram(siteCmd: Command, cmd: CliCommand): voi
       const kwargs = prepareCommandArgs(cmd, rawKwargs);
 
       const verbose = optionsRecord.verbose === true;
-      const format = typeof optionsRecord.format === 'string' ? optionsRecord.format : 'json';
       const formatExplicit = subCmd.getOptionValueSource('format') === 'cli';
+      const terminalFormat = !formatExplicit && !outputFile && process.stdout.isTTY ? cmd.terminalFormat : undefined;
+      const format = terminalFormat ?? (typeof optionsRecord.format === 'string' ? optionsRecord.format : 'json');
       if (verbose) process.env.OPENCLI_VERBOSE = '1';
       const globals = typeof subCmd.optsWithGlobals === 'function' ? subCmd.optsWithGlobals() as Record<string, unknown> : {};
       const result = await executeCommand(cmd, kwargs, verbose, {
         prepared: true,
+        ...(cmd.terminalFormat === 'plain' && format === 'plain' && !outputFile && process.stdout.isTTY
+          ? { terminal: { columns: process.stdout.columns || 80, colorDepth: process.stdout.getColorDepth?.() ?? 1 } }
+          : {}),
         ...(typeof globals.profile === 'string' && globals.profile.trim() ? { profile: globals.profile.trim() } : {}),
         ...(typeof optionsRecord.trace === 'string' && optionsRecord.trace !== 'off' ? { trace: optionsRecord.trace } : {}),
         ...(cmd.browser && typeof optionsRecord.window === 'string' ? { windowMode: optionsRecord.window } : {}),

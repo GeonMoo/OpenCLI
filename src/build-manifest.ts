@@ -121,6 +121,7 @@ function toManifestEntry(cmd: CliCommand, modulePath: string, sourceFile?: strin
     args: toManifestArgs(cmd.args),
     columns: cmd.columns,
     defaultFormat: cmd.defaultFormat,
+    terminalFormat: cmd.terminalFormat,
     type: 'js',
     modulePath,
     sourceFile,

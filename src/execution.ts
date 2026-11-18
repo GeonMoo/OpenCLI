@@ -17,6 +17,7 @@ import {
   type SiteSessionMode,
   type Arg,
   type CommandArgs,
+  type TerminalPresentation,
   getRegistry,
   fullName,
 } from './registry.js';
@@ -102,6 +103,7 @@ async function runCommand(
   page: IPage | null,
   kwargs: CommandArgs,
   debug: boolean,
+  terminal?: TerminalPresentation,
 ): Promise<unknown> {
   const internal = cmd as InternalCliCommand;
   if (internal._lazy && internal._modulePath) {
@@ -139,12 +141,12 @@ async function runCommand(
 
     const updated = getRegistry().get(fullName(cmd));
     if (updated?.func) {
-      return runCommandFunc(updated, page, kwargs, debug);
+      return runCommandFunc(updated, page, kwargs, debug, terminal);
     }
     if (updated?.pipeline) return executePipeline(page, updated.pipeline, { args: kwargs, debug });
   }
 
-  if (cmd.func) return runCommandFunc(cmd, page, kwargs, debug);
+  if (cmd.func) return runCommandFunc(cmd, page, kwargs, debug, terminal);
   if (cmd.pipeline) return executePipeline(page, cmd.pipeline, { args: kwargs, debug });
   throw new CommandExecutionError(
     `Command ${fullName(cmd)} has no func or pipeline`,
@@ -152,8 +154,8 @@ async function runCommand(
   );
 }
 
-function runCommandFunc(cmd: CliCommand, page: IPage | null, kwargs: CommandArgs, debug: boolean): Promise<unknown> {
-  if (cmd.browser === false) return cmd.func!(kwargs, debug);
+function runCommandFunc(cmd: CliCommand, page: IPage | null, kwargs: CommandArgs, debug: boolean, terminal?: TerminalPresentation): Promise<unknown> {
+  if (cmd.browser === false) return terminal ? cmd.func!(kwargs, debug, terminal) : cmd.func!(kwargs, debug);
   if (!page) {
     throw new CommandExecutionError(`Command ${fullName(cmd)} requires a browser session but none was provided`);
   }
@@ -207,6 +209,7 @@ export async function executeCommand(
     keepTab?: string;
     windowMode?: string;
     siteSession?: string;
+    terminal?: TerminalPresentation;
     onTraceExport?: (trace: ObservationExportResult) => void;
   } = {},
 ): Promise<unknown> {
@@ -483,13 +486,13 @@ export async function executeCommand(
       // enough that a hard cap would do more harm than good.
       if (userTimeoutSec !== null) {
         const ceiling = userTimeoutSec + RUNTIME_TIMEOUT_PADDING_SECONDS;
-        result = await runWithTimeout(runCommand(cmd, null, kwargs, debug), {
+        result = await runWithTimeout(runCommand(cmd, null, kwargs, debug, opts.terminal), {
           timeout: ceiling,
           label: fullName(cmd),
           hint: `Pass a higher --timeout value (currently ${userTimeoutSec}s)`,
         });
       } else {
-        result = await runCommand(cmd, null, kwargs, debug);
+        result = await runCommand(cmd, null, kwargs, debug, opts.terminal);
       }
     }
   } catch (err) {
