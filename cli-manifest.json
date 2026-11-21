@@ -40796,6 +40796,106 @@
     "sourceFile": "wanfang/search.js"
   },
   {
+    "site": "wayback",
+    "name": "search",
+    "description": "Find archived site homepages by keyword using Wayback Site Search.",
+    "access": "read",
+    "example": "opencli wayback search \"machine learning\" --limit 10",
+    "domain": "web.archive.org",
+    "strategy": "public",
+    "browser": false,
+    "args": [
+      {
+        "name": "keywords",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Keywords associated with site homepages."
+      },
+      {
+        "name": "date-before",
+        "type": "string",
+        "required": false,
+        "valueRequired": true,
+        "help": "Only include sites archived before this UTC date (YYYY-MM-DD)."
+      },
+      {
+        "name": "order",
+        "type": "string[]",
+        "required": false,
+        "help": "Sort by first indexed capture year with time asc or time desc. Default: relevance."
+      },
+      {
+        "name": "limit",
+        "type": "string",
+        "default": "100",
+        "required": false,
+        "valueRequired": true,
+        "help": "Positive result limit or None for all available Site Search hits (up to 500)."
+      }
+    ],
+    "columns": [
+      "domain",
+      "snippet",
+      "firstCaptureYear",
+      "url",
+      "waybackUrl"
+    ],
+    "type": "js",
+    "modulePath": "wayback/search.js",
+    "sourceFile": "wayback/search.js"
+  },
+  {
+    "site": "wayback",
+    "name": "url",
+    "description": "List Wayback Machine captures for a URL.",
+    "access": "read",
+    "example": "opencli wayback url example.com --date-before 2026-11-01 --order time asc --limit 100",
+    "domain": "web.archive.org",
+    "strategy": "public",
+    "browser": false,
+    "args": [
+      {
+        "name": "url",
+        "type": "str",
+        "required": true,
+        "positional": true,
+        "help": "Website URL or hostname. Searches captures of this URL."
+      },
+      {
+        "name": "date-before",
+        "type": "string",
+        "required": false,
+        "valueRequired": true,
+        "help": "Exclude this UTC date and later captures (YYYY-MM-DD)."
+      },
+      {
+        "name": "order",
+        "type": "string[]",
+        "required": false,
+        "help": "Capture order: time asc (default) or time desc."
+      },
+      {
+        "name": "limit",
+        "type": "string",
+        "default": "100",
+        "required": false,
+        "valueRequired": true,
+        "help": "Positive capture limit or None for all matching captures."
+      }
+    ],
+    "columns": [
+      "timestamp",
+      "snapshot_url",
+      "status",
+      "mimetype",
+      "original_url"
+    ],
+    "type": "js",
+    "modulePath": "wayback/url.js",
+    "sourceFile": "wayback/url.js"
+  },
+  {
     "site": "web",
     "name": "read",
     "description": "Fetch any web page and export as Markdown",

@@ -79,3 +79,16 @@ Returns rows with `timestamp, snapshot_url, status, mimetype, original_url`. Eac
 ## Prerequisites
 
 - No browser required; uses public archive.org APIs (Advanced Search, Metadata, Wayback Available, CDX).
+
+## Wayback Machine
+
+```bash
+opencli wayback url "http://example.com/" --order time desc --limit 10 -f yaml
+opencli wayback search "machine learning" --date-before 2026-11-01 --order time asc --limit 100
+```
+
+`wayback url` lists captures of an exact URL. `time asc` is the default. `time desc` returns the newest captures first, and `--limit None` retrieves every available page.
+
+`wayback search` finds site homepages by keyword and ranks them by relevance by default. `time asc` and `time desc` sort by first indexed capture year. `--limit None` returns up to 500 site matches from the search index.
+
+Both commands accept `--date-before YYYY-MM-DD`, which excludes the specified UTC date and later captures. The default limit is 100.
