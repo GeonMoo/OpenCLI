@@ -30,23 +30,9 @@ opencli list
 
 `npm install -g . --force` overwrites the shared command immediately, but keeps the old package installed. A later update or uninstall of that old package can affect the shared command. Removing the old package is the lasting migration; use separate prefixes if retaining both packages intentionally.
 
-## First publication
+## Publish through GitHub Actions
 
-The npm account must own the `@geonmoo` scope. Authenticate locally (never commit credentials) and publish:
-
-```sh
-npm login --registry=https://registry.npmjs.org
-npm whoami --registry=https://registry.npmjs.org
-npm publish --access public --registry=https://registry.npmjs.org
-```
-
-Use the npm account's required 2FA flow. The package's `publishConfig` explicitly selects the official npm registry even when the development registry is a mirror. `prepublishOnly` rebuilds the package before publishing. A successful tarball check does not prove registry authentication or scope ownership.
-
-## Subsequent GitHub releases
-
-The existing `release.yml` runs on `v*` tags, verifies that the tag matches `package.json`, and publishes with provenance. Configure the repository's `NPM_TOKEN` secret with publishing permission for this package and the appropriate npm 2FA policy before pushing a release tag. Increment the version for each new publication; npm will not overwrite an existing version.
-
-As an alternative, [configure npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) for owner `GeonMoo`, repository `OpenCLI`, workflow `release.yml`. Then use a supported npm version and remove the workflow's `NODE_AUTH_TOKEN` environment block. The workflow already grants `id-token: write`. Trusted publishing configuration is separate from committing these files.
+Configure [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) for `@geonmoo/opencli` with owner `GeonMoo`, repository `OpenCLI`, and workflow `release.yml`. The workflow publishes with provenance when you push a release tag matching `package.json`. Increment the package version for each release. See the [release procedure](../../.github/RELEASING.md) for the verification and recovery steps.
 
 ## Verify the published package
 

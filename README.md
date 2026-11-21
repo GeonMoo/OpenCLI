@@ -2,6 +2,8 @@
 
 [中文文档](./README.zh-CN.md) · [Upstream: jackwener/OpenCLI](https://github.com/jackwener/OpenCLI)
 
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Install_extension-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk)
+
 This repository is our fork of [jackwener/OpenCLI](https://github.com/jackwener/OpenCLI). We maintain our own adapters and customize output formats for our workflows. Keeping these changes here lets us iterate without waiting for every change to go through the upstream contribution process, while continuing to merge upstream improvements.
 
 **Install this fork with `npm install -g @geonmoo/opencli`.** The npm package for this repository is **`@geonmoo/opencli`**; it provides the `opencli` command.
@@ -75,6 +77,8 @@ Compared with the local `upstream/main` snapshot at [`e6174a95`](https://github.
 | **tradingview** | `calendar` `ideas` `news` `scripts` | Calendars, news, trading ideas, indicators and strategies |
 
 Run `opencli list` to browse available commands, or `opencli <site> <command> --help` for arguments. For upstream features and documentation, see [jackwener/OpenCLI](https://github.com/jackwener/OpenCLI).
+
+When upgrading, uninstall any old *opencli-sitemap-author* and *opencli-browser-sitemap* skills through your agent. Current OpenCLI releases no longer ship these skills.
 
 ## Syncing with Upstream
 

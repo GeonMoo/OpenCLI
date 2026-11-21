@@ -2,6 +2,8 @@
 
 [English](./README.md) · [上游仓库：jackwener/OpenCLI](https://github.com/jackwener/OpenCLI)
 
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Install_extension-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/opencli/ildkmabpimmkaediidaifkhjpohdnifk)
+
 这是基于 [jackwener/OpenCLI](https://github.com/jackwener/OpenCLI) 的 fork。我们有自己的 adapter，也需要按自己的工作流定制输出格式。每次调整都提交上游、等待合并不够方便，因此先独立维护这个仓库，方便快速迭代，同时持续同步上游改进。
 
 **安装本仓库版本，请使用 `npm install -g @geonmoo/opencli`。** 本仓库发布的 npm 包是 **`@geonmoo/opencli`**，安装后使用 `opencli` 命令。
@@ -75,6 +77,8 @@ opencli bilibili hot --limit 5
 | **tradingview** | `calendar` `ideas` `news` `scripts` | TradingView 日历、新闻、交易观点、指标及策略 |
 
 运行 `opencli list` 查看可用命令，使用 `opencli <site> <command> --help` 查看参数。上游功能和完整文档见 [jackwener/OpenCLI](https://github.com/jackwener/OpenCLI)。
+
+升级时，可以通过 Agent 的技能管理器卸载旧版 *opencli-sitemap-author* 和 *opencli-browser-sitemap*。当前版本已停止发布这两个技能。
 
 ## 同步上游
 

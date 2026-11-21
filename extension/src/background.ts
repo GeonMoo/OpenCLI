@@ -10,6 +10,7 @@ declare const __OPENCLI_COMPAT_RANGE__: string;
 import { callChrome, describeChrome, ChromeApiError } from './chrome-api';
 import type { Command, Result } from './protocol';
 import { DAEMON_HOST, DAEMON_PORT, DAEMON_WS_URL, DAEMON_PING_URL } from './protocol';
+import { findIdleInteractiveGroup, idlePlaceholderUrl, parkIdleInteractiveTab, consumeIdlePlaceholder } from './idle-container';
 import * as executor from './cdp';
 import * as identity from './identity';
 import { executeWithJournal } from './journal';
@@ -770,6 +771,15 @@ async function collectOwnedGroupCandidates(role: OwnedWindowRole): Promise<Owned
     }
   }
 
+  // A persisted extension-owned placeholder is evidence across browser restarts;
+  // group titles, colors, and restored numeric IDs are not.
+  if (groupsById.size === 0) {
+    const reservedTabs = new Set([...automationSessions.values()]
+      .flatMap(session => session.preferredTabId === null ? [] : [session.preferredTabId]));
+    const idleGroup = await findIdleInteractiveGroup(reservedTabs);
+    if (idleGroup) groupsById.set(idleGroup.id, idleGroup);
+  }
+
   const candidates = await Promise.all([...groupsById.values()].map(toOwnedContainerGroupCandidate));
   return candidates.filter((candidate): candidate is OwnedContainerGroupCandidate => candidate !== null);
 }
@@ -1061,13 +1071,14 @@ async function ensureOwnedContainerWindowUnlocked(
 }
 
 async function findReusableOwnedContainerTab(windowId: number, ownedGroupId?: number | null): Promise<number | undefined> {
+  const idleUrl = await idlePlaceholderUrl();
   const tabs = await chrome.tabs.query({ windowId });
   // Group members and non-http placeholders stay eligible. Without a group
   // signal, only non-http placeholders can be reused.
   const reusable = tabs.find(tab =>
     tab.id !== undefined &&
     initialTabIsAvailable(tab.id) &&
-    isDebuggableUrl(tab.url) &&
+    (isDebuggableUrl(tab.url) || (idleUrl !== null && tab.url === idleUrl && !tab.pendingUrl)) &&
     (
       ownedGroupId === undefined ||
       (ownedGroupId !== null && tab.groupId === ownedGroupId) ||
@@ -1092,11 +1103,14 @@ async function createOwnedTabLease(leaseKey: string, initialUrl?: string): Promi
 async function createOwnedTabLeaseUnlocked(leaseKey: string, initialUrl?: string): Promise<ResolvedTab> {
   const targetUrl = (initialUrl && isSafeNavigationUrl(initialUrl)) ? initialUrl : BLANK_PAGE;
   const role = getOwnedWindowRole(leaseKey);
-  const { windowId, initialTabId } = await ensureOwnedContainerWindow(role, targetUrl, getWindowMode(leaseKey));
+  // Container creation must not start the lease's navigation as well. A slow
+  // initial load can still expose about:blank, causing a duplicate tabs.update.
+  const { windowId, initialTabId } = await ensureOwnedContainerWindow(role, BLANK_PAGE, getWindowMode(leaseKey));
   let tab: chrome.tabs.Tab;
 
   if (initialTabIsAvailable(initialTabId)) {
     tab = await chrome.tabs.get(initialTabId);
+    await consumeIdlePlaceholder(tab);
     if (!isTargetUrl(tab.url, targetUrl)) {
       tab = await chrome.tabs.update(initialTabId, { url: targetUrl });
       await new Promise(resolve => setTimeout(resolve, 300));
@@ -1749,9 +1763,11 @@ async function handleNavigate(cmd: Command, leaseKey: string): Promise<Result> {
   if (!isSafeNavigationUrl(cmd.url)) {
     return { id: cmd.id, ok: false, error: 'Blocked URL scheme -- only http:// and https:// are allowed' };
   }
-  // Pass target URL so that first-time window creation can start on the right domain
+  // Acquire a blank lease first: this handler alone starts the navigation.
+  // Passing cmd.url into lease creation issues the same request twice while
+  // the first load is pending, which Chromium can reject (#2487).
   const cmdTabId = await resolveCommandTabId(cmd);
-  const resolved = await resolveTab(cmdTabId, leaseKey, cmd.url);
+  const resolved = await resolveTab(cmdTabId, leaseKey);
   const tabId = resolved.tabId;
 
   const beforeTab = resolved.tab ?? await chrome.tabs.get(tabId);
@@ -2213,7 +2229,10 @@ async function releaseLease(leaseKey: string, reason: string = 'released'): Prom
         console.log(`[opencli] Released owned tab lease ${tabId} (session=${session.session}, surface=${session.surface}, ${reason})`);
       } else {
         try {
-          const tab = await chrome.tabs.update(tabId, { url: BLANK_PAGE, active: true });
+          const role = getOwnedWindowRole(leaseKey);
+          const idleUrl = role === 'interactive'
+            ? await parkIdleInteractiveTab(tabId, session.windowId) : null;
+          const tab = await chrome.tabs.update(tabId, { url: idleUrl ?? BLANK_PAGE, active: true });
           const group = await ensureOwnedContainerGroup(getOwnedWindowRole(leaseKey), session.windowId, [tab.id ?? tabId]);
           if (group) session.windowId = group.windowId;
           console.log(`[opencli] Released owned tab lease ${tabId} as reusable placeholder (session=${session.session}, surface=${session.surface}, ${reason})`);
