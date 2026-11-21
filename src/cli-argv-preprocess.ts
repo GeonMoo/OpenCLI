@@ -6,13 +6,13 @@
 export interface DashPositionalManifestEntry {
   site: string;
   name: string;
-  args?: Array<{ name: string; positional?: boolean; required?: boolean; valueRequired?: boolean; default?: unknown }>;
+  args?: Array<{ name: string; type?: string; positional?: boolean; required?: boolean; valueRequired?: boolean; default?: unknown }>;
   browser?: boolean;
 }
 
 const ROOT_VALUE_FLAGS: ReadonlySet<string> = new Set(['--profile']);
 
-type OptionValueMode = 'none' | 'required' | 'optional';
+type OptionValueMode = 'none' | 'required' | 'optional' | 'variadic';
 type OptionParse = { values: string[]; nextIndex: number };
 
 function knownCommandOptions(cmd: DashPositionalManifestEntry): Map<string, OptionValueMode> {
@@ -38,7 +38,7 @@ function knownCommandOptions(cmd: DashPositionalManifestEntry): Map<string, Opti
     if (arg.positional) continue;
     // Keep in sync with commanderAdapter.ts:
     // required/valueRequired -> `<value>`; otherwise -> `[value]`.
-    options.set(`--${arg.name}`, arg.required || arg.valueRequired ? 'required' : 'optional');
+    options.set(`--${arg.name}`, arg.type === 'string[]' ? 'variadic' : arg.required || arg.valueRequired ? 'required' : 'optional');
   }
   return options;
 }
@@ -57,6 +57,11 @@ function consumeKnownOption(argv: readonly string[], index: number, options: Rea
     }
   }
   if (!mode) return null;
+  if (mode === 'variadic') {
+    let nextIndex = index + 1;
+    while (nextIndex < argv.length && !argv[nextIndex].startsWith('-')) nextIndex += 1;
+    return { values: argv.slice(index, nextIndex), nextIndex };
+  }
   if (eq !== -1 || mode === 'none') return { values: [token], nextIndex: index + 1 };
   const next = argv[index + 1];
   if (mode === 'required') {

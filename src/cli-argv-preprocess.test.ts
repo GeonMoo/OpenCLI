@@ -19,6 +19,14 @@ describe('escapeLeadingDashPositional', () => {
       .toEqual(['boss', 'detail', '-f', 'json', '--', '-xyz']);
   });
 
+  it('keeps all values of a multi-value flag when protecting a positional', () => {
+    const commands = [{ site: 'google', name: 'search', args: [
+      { name: 'keyword', positional: true, required: true }, { name: 'order', type: 'string[]' },
+    ] }];
+    expect(escapeLeadingDashPositional(['google', 'search', '-term', '--order', 'time', 'asc'], commands))
+      .toEqual(['google', 'search', '--order', 'time', 'asc', '--', '-term']);
+  });
+
   it('preserves attached short option values like commander does', () => {
     expect(escapeLeadingDashPositional(['boss', 'detail', '-fjson', '-xyz'], manifest))
       .toEqual(['boss', 'detail', '-fjson', '--', '-xyz']);

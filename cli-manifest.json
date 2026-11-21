@@ -13849,10 +13849,37 @@
       },
       {
         "name": "limit",
-        "type": "int",
+        "type": "str",
         "default": 10,
         "required": false,
-        "help": "Number of results"
+        "valueRequired": true,
+        "help": "Positive integer (e.g. 1000), or None for all available results today unless dates are specified"
+      },
+      {
+        "name": "date-before",
+        "type": "str",
+        "required": false,
+        "valueRequired": true,
+        "help": "Before YYYY-MM-DD (exclusive)"
+      },
+      {
+        "name": "date-between",
+        "type": "string[]",
+        "required": false,
+        "help": "From YYYY-MM-DD to YYYY-MM-DD (inclusive)"
+      },
+      {
+        "name": "date-after",
+        "type": "str",
+        "required": false,
+        "valueRequired": true,
+        "help": "After YYYY-MM-DD (exclusive)"
+      },
+      {
+        "name": "order",
+        "type": "string[]",
+        "required": false,
+        "help": "relevance asc|desc or time asc|desc (default: relevance desc)"
       },
       {
         "name": "lang",
@@ -13897,10 +13924,37 @@
       },
       {
         "name": "limit",
-        "type": "int",
+        "type": "str",
         "default": 10,
         "required": false,
-        "help": "Number of results (1-100)"
+        "valueRequired": true,
+        "help": "Positive integer (e.g. 1000), or None for all available results today unless dates are specified"
+      },
+      {
+        "name": "date-before",
+        "type": "str",
+        "required": false,
+        "valueRequired": true,
+        "help": "Before YYYY-MM-DD (exclusive)"
+      },
+      {
+        "name": "date-between",
+        "type": "string[]",
+        "required": false,
+        "help": "From YYYY-MM-DD to YYYY-MM-DD (inclusive)"
+      },
+      {
+        "name": "date-after",
+        "type": "str",
+        "required": false,
+        "valueRequired": true,
+        "help": "After YYYY-MM-DD (exclusive)"
+      },
+      {
+        "name": "order",
+        "type": "string[]",
+        "required": false,
+        "help": "relevance asc|desc or time asc|desc (default: relevance desc)"
       },
       {
         "name": "lang",
@@ -13908,13 +13962,21 @@
         "default": "en",
         "required": false,
         "help": "Language short code (e.g. en, zh)"
+      },
+      {
+        "name": "timeout",
+        "type": "int",
+        "default": 180,
+        "required": false,
+        "help": "Timeout in seconds for multi-page searches"
       }
     ],
     "columns": [
       "type",
       "title",
       "url",
-      "snippet"
+      "snippet",
+      "date"
     ],
     "type": "js",
     "modulePath": "google/search.js",

@@ -17,6 +17,7 @@ import {
   commandHelpData,
   formatCommandHelpText,
   formatCommandListTerm,
+  formatCommandOptionTerm,
   formatSiteCommandDescription,
   formatSiteHelpText,
   getRequestedHelpFormat,
@@ -46,8 +47,7 @@ export function registerCommandToProgram(siteCmd: Command, cmd: CliCommand): voi
       subCmd.argument(bracket, arg.help ?? '');
       positionalArgs.push(arg);
     } else {
-      const expectsValue = arg.required || arg.valueRequired;
-      const flag = expectsValue ? `--${arg.name} <value>` : `--${arg.name} [value]`;
+      const flag = formatCommandOptionTerm(arg);
       if (arg.required) subCmd.requiredOption(flag, arg.help ?? '');
       else if (arg.default != null) subCmd.option(flag, arg.help ?? '', String(arg.default));
       else subCmd.option(flag, arg.help ?? '');

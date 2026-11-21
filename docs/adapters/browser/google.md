@@ -47,6 +47,16 @@ opencli google news "artificial intelligence" --limit 10 --lang en --region US
 # Search Google
 opencli google search "typescript tutorial" --limit 10
 
+# Search a date range and save the results to a file
+opencli google news "artificial intelligence" --date-between 2025-01-01 2025-01-03 --limit 1000 --order time desc -f json -o news.json
+
+# Collect the available results for today in the system's local timezone
+opencli google search "artificial intelligence" --limit None --order time asc -f csv -o search-today.csv
+
+# Search on either side of a date or reverse Google's relevance ranking
+opencli google search "typescript" --date-before 2025-01-01 --order relevance asc
+opencli google news "typescript" --date-after 2025-12-31 --order relevance desc
+
 # Get search suggestions
 opencli google suggest python
 
@@ -66,6 +76,11 @@ opencli google trends --region JP --limit 10
 
 ## Notes
 
+- For `news` and `search`, use `YYYY-MM-DD` dates. `--date-before` and `--date-after` exclude the specified day and can be combined. `--date-between START END` includes both days and can also query a single day by repeating its date.
+- `--limit` defaults to 10. A larger number is a maximum, and `None` collects all available results for today, or for the date range you specify. Use `-o PATH` to write large results to a file.
+- `--order relevance desc` uses Google's returned order. `relevance asc` reverses that ranking. `news` keeps the initial feed's order first and appends unique results from more narrowly dated feeds in their returned order. Google exposes relevance ranks without numeric scores.
+- `--order time asc` starts with the oldest results and `--order time desc` starts with the newest. `news` uses RSS publication dates. An undated `news` query sorts the first feed when it already contains enough results. RSS dates describe the articles as reported by Google News and cannot establish which version of an article was available at a historical cutoff. `search` uses dates shown on Google's result cards, estimates relative dates, and places results with unavailable or unrecognized dates at the end. Google's web date filters can use a page's last update date.
+- Bulk queries are limited by Google's accessible results. `news` splits full keyword feeds by day and warns when a feed remains full. Without a keyword it date-filters the curated top-stories feed. `search` stops at the last available results page. Use `--timeout` to allow more time for a multi-page web search.
 - `suggest` defaults to `--lang zh-CN`; other commands default to `--lang en`.
 - `news` supports `--lang` and `--region` parameters for localized results.
 - `trends` traffic values are raw strings (e.g. "500K+", "1,000,000+"), not numeric.

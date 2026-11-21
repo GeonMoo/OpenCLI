@@ -65,6 +65,20 @@ describe('commanderAdapter arg passing', () => {
     expect(kwargs).toHaveProperty('dry-run');
   });
 
+  it('passes multi-value adapter flags as arrays and keeps following options separate', async () => {
+    const program = new Command();
+    registerCommandToProgram(program.command('paperreview'), {
+      ...cmd,
+      args: [...cmd.args, { name: 'date-between', type: 'string[]' }],
+    });
+    await program.parseAsync(['node', 'opencli', 'paperreview', 'submit', './paper.pdf',
+      '--date-between', '2026-11-20', '2026-11-21', '--dry-run', 'true']);
+    expect(mockExecuteCommand.mock.calls[0][1]).toMatchObject({
+      'date-between': ['2026-11-20', '2026-11-21'],
+      'dry-run': true,
+    });
+  });
+
   it('passes valueless bool flags as true to executeCommand', async () => {
     const program = new Command();
     const siteCmd = program.command('paperreview');

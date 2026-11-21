@@ -1,7 +1,39 @@
 /**
  * Google adapter utilities.
- * Shared RSS parser for news and trends commands.
+ * Shared Google adapter helpers.
  */
+
+function isNavigationRejected(error) {
+    return /Navigation rejected/i.test(String(error?.message || error));
+}
+
+export async function navigateGoogleSearch(page, url) {
+    try {
+        await page.goto(url);
+        return;
+    } catch (error) {
+        if (!isNavigationRejected(error)) throw error;
+    }
+
+    if (typeof page.closeWindow === 'function') {
+        await page.closeWindow().catch(() => {});
+    }
+
+    try {
+        await page.goto(url);
+    } catch (error) {
+        if (!isNavigationRejected(error)) throw error;
+        if (typeof page.newTab === 'function' && typeof page.setActivePage === 'function') {
+            const pageId = await page.newTab(url);
+            if (pageId) {
+                await page.setActivePage(pageId);
+                return;
+            }
+        }
+        throw error;
+    }
+}
+
 /**
  * Parse RSS XML by splitting into <item> blocks, then extracting fields per block.
  * Handles both plain text and CDATA-wrapped content.

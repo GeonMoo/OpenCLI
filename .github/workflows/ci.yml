@@ -17,8 +17,6 @@ jobs:
   # ── Fast gate: typecheck + build ──
   build:
     runs-on: ${{ matrix.os }}
-    env:
-      OPENCLI_INSTALL_PREFIX: ${{ runner.temp }}/opencli-source-prefix
     strategy:
       fail-fast: false
       matrix:
@@ -32,9 +30,13 @@ jobs:
           cache: 'npm'
 
       - name: Install globally from clean source
+        env:
+          OPENCLI_INSTALL_PREFIX: ${{ runner.temp }}/opencli-source-prefix
         run: npm install -g . --prefix "${{ env.OPENCLI_INSTALL_PREFIX }}" --no-audit --no-fund
 
       - name: Verify source install entry point
+        env:
+          OPENCLI_INSTALL_PREFIX: ${{ runner.temp }}/opencli-source-prefix
         run: node -e "const fs=require('node:fs'); const path=require('node:path'); const bin=path.join(process.env.OPENCLI_INSTALL_PREFIX,process.platform==='win32'?'opencli.cmd':'bin/opencli'); if(!fs.existsSync(bin)) throw new Error('Missing installed opencli command');"
 
       - name: Build

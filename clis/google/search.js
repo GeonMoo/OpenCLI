@@ -8,7 +8,45 @@
  * snippets. This approach is resilient to class name changes.
  */
 import { cli, Strategy } from '@geonmoo/opencli/registry';
-import { CliError } from '@geonmoo/opencli/errors';
+import { CommandExecutionError, EmptyResultError } from '@geonmoo/opencli/errors';
+import { runBrowserStep } from '../_shared/search-adapter.js';
+import { readSearchOptions, searchOptions, sortSearchRows } from './search-options.js';
+import { navigateGoogleSearch } from './utils.js';
+
+function searchTime(value, now) {
+    if (!value) return NaN;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return Date.parse(`${value}T00:00:00`);
+    if (/^\d{4}-\d{2}-\d{2}T/.test(value)) return Date.parse(value);
+    if (/^(?:\d{1,2}\s+[a-z]{3,9}\.?\s+\d{4}|[a-z]{3,9}\.?\s+\d{1,2},?\s+\d{4})$/i.test(value)) {
+        return Date.parse(value);
+    }
+    const chineseDay = value.match(/^(\d{4})年(\d{1,2})月(\d{1,2})日$/);
+    if (chineseDay) {
+        const [, year, month, day] = chineseDay;
+        return Date.parse(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`);
+    }
+    const relative = value.match(/^(\d+)\s*(second|minute|hour|day|week|month|year)s? ago$/i)
+        ?? value.match(/^(\d+)\s*(秒|分钟|小時|小时|天|週|周|個月|个月|月|年)前$/);
+    if (!relative) return NaN;
+    const unit = relative[2].toLowerCase();
+    const amount = Number(relative[1]);
+    if (['month', '个月', '個月', '月', 'year', '年'].includes(unit)) {
+        const date = new Date(now);
+        const day = date.getDate();
+        const months = ['year', '年'].includes(unit) ? 12 * amount : amount;
+        date.setMonth(date.getMonth() - months, 1);
+        const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        date.setDate(Math.min(day, endOfMonth));
+        return date.getTime();
+    }
+    const seconds = { second: 1, 秒: 1, minute: 60, 分钟: 60, hour: 3600, 小時: 3600, 小时: 3600, day: 86400, 天: 86400, week: 604800, 週: 604800, 周: 604800 };
+    return now - amount * seconds[unit] * 1000;
+}
+
+function googleDate(day) {
+    const [year, month, date] = day.split('-');
+    return `${Number(month)}/${Number(date)}/${year}`;
+}
 cli({
     site: 'google',
     name: 'search',
@@ -19,46 +57,87 @@ cli({
     browser: true,
     args: [
         { name: 'keyword', positional: true, required: true, help: 'Search query' },
-        { name: 'limit', type: 'int', default: 10, help: 'Number of results (1-100)' },
+        ...searchOptions,
         { name: 'lang', default: 'en', help: 'Language short code (e.g. en, zh)' },
+        { name: 'timeout', type: 'int', default: 180, help: 'Timeout in seconds for multi-page searches' },
     ],
-    columns: ['type', 'title', 'url', 'snippet'],
+    columns: ['type', 'title', 'url', 'snippet', 'date'],
     func: async (page, args) => {
-        const limit = Math.max(1, Math.min(Number(args.limit), 100));
-        const keyword = encodeURIComponent(args.keyword);
-        const lang = encodeURIComponent(args.lang);
-        const url = `https://www.google.com/search?q=${keyword}&hl=${lang}&num=${limit}`;
-        await page.goto(url);
-        // Wait until at least one SERP title link is present. On Chrome 148 /
-        // Linux Wayland, DOM stability can be reached before #rso anchors are
-        // populated, making browser execution look visually correct while the
-        // adapter extracts an empty array.
-        try {
-            await page.wait({ selector: '#rso a h3', timeout: 5 });
+        const now = Date.now();
+        const options = readSearchOptions(args, new Date(now));
+        const { limit, order, direction, firstDay, lastDay, start, end } = options;
+        const filtered = Boolean(firstDay || lastDay);
+        const initialUrl = new URL('https://www.google.com/search');
+        const query = [args.keyword];
+        if (firstDay && lastDay) {
+            initialUrl.searchParams.set('tbs', `cdr:1,cd_min:${googleDate(firstDay)},cd_max:${googleDate(lastDay)}`);
+        } else {
+            if (firstDay) query.push(`after:${firstDay}`);
+            if (lastDay) query.push(`before:${lastDay}`);
         }
-        catch {
-            await page.wait(2);
+        initialUrl.searchParams.set('q', query.join(' '));
+        initialUrl.searchParams.set('hl', args.lang);
+        const rows = [];
+        const seen = new Set();
+        const offsets = new Set();
+        let url = initialUrl;
+        while (url) {
+            const offset = url.searchParams.get('start') ?? '0';
+            if (offsets.has(offset)) break;
+            offsets.add(offset);
+            const wrapper = await readPage(page, url.href, !filtered && order === 'relevance' && offsets.size === 1);
+            if (!wrapper || !Array.isArray(wrapper.items)) throw new CommandExecutionError('Could not read Google Search results.');
+            if (wrapper.blocked) throw new CommandExecutionError('Google Search blocked the request with a CAPTCHA or consent screen.');
+            for (const { kind: type, heading: title, href, excerpt: snippet, displayDate } of wrapper.items) {
+                const time = searchTime(displayDate, now);
+                if (Number.isFinite(time) && (time < start || time >= end)) continue;
+                const key = href || title;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                const date = Number.isFinite(time) ? new Date(time).toISOString() : null;
+                rows.push({ time, row: { type, title, url: href, snippet, date } });
+            }
+            if (order === 'relevance' && direction === 'desc' && rows.length >= limit) break;
+            url = wrapper.next ? new URL(wrapper.next, url) : null;
+            if (url && (url.origin !== initialUrl.origin || url.pathname !== initialUrl.pathname)) break;
         }
-        const wrapper = await page.evaluate(`
+        if (!rows.length) throw new EmptyResultError('google search', 'Try a different keyword or date range.');
+        return sortSearchRows(rows, options);
+    },
+});
+
+async function readPage(page, url, includeExtras) {
+    await runBrowserStep('google search navigation', () => navigateGoogleSearch(page, url));
+    // Some Chrome builds settle before Google populates its result links.
+    try {
+        await page.wait({ selector: '#rso a h3', timeout: 5 });
+    } catch {
+        await page.wait(2);
+    }
+    return page.evaluate(`
       (function() {
         var results = [];
         var seenUrls = {};
         var rso = document.querySelector('#rso');
-        if (!rso) return {items: results};
+        var includeExtras = ${includeExtras};
+        var blocked = location.pathname.startsWith('/sorry') || location.hostname.startsWith('consent.')
+          || !!document.querySelector('#captcha-form, #recaptcha, form[action*="consent.google"]');
+        var next = document.querySelector('a#pnnext, a[rel="next"]');
+        if (!rso) return {items: results, next: next?.href, blocked: blocked};
 
         // -- Featured snippet (scoped to #rso to avoid matching unrelated elements) --
         var featuredEl = rso.querySelector('.xpdopen .hgKElc')
                       || rso.querySelector('.IZ6rdc');
-        if (featuredEl) {
+        if (includeExtras && featuredEl) {
           var parentBlock = featuredEl.closest('[data-hveid]') || featuredEl.parentElement;
           var fLink = parentBlock ? parentBlock.querySelector('a[href]') : null;
           var fUrl = fLink ? fLink.href : '';
           if (fUrl) seenUrls[fUrl] = true;
           results.push({
-            type: 'snippet',
-            title: featuredEl.textContent.trim().slice(0, 200),
-            url: fUrl,
-            snippet: '',
+            kind: 'snippet',
+            heading: featuredEl.textContent.trim().slice(0, 200),
+            href: fUrl,
+            excerpt: '',
           });
         }
 
@@ -78,8 +157,9 @@ cli({
           seenUrls[href] = true;
 
           // Walk up to find result container for snippet extraction
-          var container = link;
-          for (var j = 0; j < 6; j++) {
+          var knownContainer = link.closest('.tF2Cxc');
+          var container = knownContainer || link;
+          for (var j = 0; !knownContainer && j < 6; j++) {
             if (container.parentElement && container.parentElement !== rso) {
               container = container.parentElement;
             }
@@ -104,35 +184,32 @@ cli({
             break;
           }
 
+          var datetime = container.querySelector('time[datetime]')?.getAttribute('datetime');
+          var dateEl = container.querySelector('.YrbPuc:not(.ZtihLe):not(.Q6qD5e) > span:only-child, .LEwnzc > span:only-child');
           results.push({
-            type: 'result',
-            title: h3.textContent.trim(),
-            url: href,
-            snippet: snippetText.slice(0, 300),
+            kind: 'result',
+            heading: h3.textContent.trim(),
+            href: href,
+            excerpt: snippetText.slice(0, 300),
+            displayDate: datetime || dateEl?.textContent.trim(),
           });
         }
 
         // -- People Also Ask --
-        var paaContainers = document.querySelectorAll('[data-sgrd="true"]');
+        var paaContainers = includeExtras ? document.querySelectorAll('[data-sgrd="true"]') : [];
         for (var i = 0; i < paaContainers.length; i++) {
           var questionEl = paaContainers[i].querySelector('span.CSkcDe');
           if (questionEl) {
             results.push({
-              type: 'paa',
-              title: questionEl.textContent.trim(),
-              url: '',
-              snippet: '',
+              kind: 'paa',
+              heading: questionEl.textContent.trim(),
+              href: '',
+              excerpt: '',
             });
           }
         }
 
-        return {items: results};
+        return {items: results, next: next?.href, blocked: blocked};
       })()
     `);
-        const results = (wrapper && wrapper.items) || [];
-        if (results.length === 0) {
-            throw new CliError('NOT_FOUND', 'No search results found', 'Try a different keyword or check for CAPTCHA');
-        }
-        return results;
-    },
-});
+}

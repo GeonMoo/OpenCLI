@@ -418,7 +418,8 @@ function formatPositionals(args: readonly Arg[]): string {
     .join(' ');
 }
 
-function formatCommandOptionTerm(arg: Arg): string {
+export function formatCommandOptionTerm(arg: Arg): string {
+  if (arg.type === 'string[]') return `--${arg.name} <value...>`;
   if (arg.required || arg.valueRequired) return `--${arg.name} <value>`;
   return `--${arg.name} [value]`;
 }
